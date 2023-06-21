@@ -1,0 +1,35 @@
+* ( ) implement custom pandoc reader
+	- ( ) Layer 1
+	-- ( ) Attached Modifiers
+	--- ( ) Bold
+	--- ( ) Italic
+	--- ( ) Underline
+	--- ( ) StrikeThrough
+	--- ( ) Spoiler
+	--- ( ) Superscript
+	--- ( ) Subscript
+	--- ( ) InlineCode
+	--- ( ) NullModifier
+	--- ( ) InlineMath
+	--- ( ) Variable
+	-- ( ) Links (only URL type)
+	-- (x) Escape Char
+	- ( ) Layer 2
+	-- ( ) Nestable Detached Modifiers
+	-- ( ) Headings
+	-- ( ) Links (minus *timestamps*, *wikilinks*, *extendable links(=)*, *anchors*)
+	-- ( ) Verbatim Ranged Tags
+	-- ( ) Delimiting Modifiers
+	- ( ) Layer 3
+	-- ( ) Links (*timestamps*, *wikilinks*)
+	-- ( ) Inline Link Targets
+	-- ( ) Carryover Tags
+	-- ( ) Detached Modifier Extensions
+	-- ( ) Detached Modifier Suffix
+	-- ( ) Range-able Detached Modifiers (minus *table cells*)
+	-- ( ) Link Modifier
+	- ( ) Layer 4
+			 %TODO: add todos%
+	- ( ) Layer 5
+	-- ( ) *macros*
+			 %TODO: add todos%
