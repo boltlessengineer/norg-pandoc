@@ -2,6 +2,8 @@
 local P, S, R, Cf, Cc, Ct, V, Cs, Cg, Cb, B, C, Cmt =
 	lpeg.P, lpeg.S, lpeg.R, lpeg.Cf, lpeg.Cc, lpeg.Ct, lpeg.V, lpeg.Cs, lpeg.Cg, lpeg.Cb, lpeg.B, lpeg.C, lpeg.Cmt
 
+local pegdebug = require 'src.pegdebug'
+
 local whitespace = S " \t"
 local line_ending = P "\r" ^ -1 * P "\n"
 local punctuation = S [[!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~]]
@@ -30,16 +32,25 @@ local inline = (wordchar + escape_sequence) ^ 1 / pandoc.Str
 
 local function attached_modifier(punc_char)
 	local punc = P(punc_char)
-	-- TODO: put B(-wordchar) here to check pattern before cursor
-	return (punc * #-whitespace)
+	local modi_end = punc * -wordchar
+	local free_modi_end = P "|" * modi_end
+	return
+		(B(-wordchar) * punc * P "|")
 		* Ct((inline
-				-- + (#-punc * V "Styled")
-        + (#-punc * punctuation / pandoc.Str)
-				+ (#-punc * punctuation / pandoc.Str)
+				+ (#-free_modi_end * punctuation / pandoc.Str)
 				+ whitespace / pandoc.Space
 				+ line_ending / pandoc.SoftBreak
 					) ^ 1)
-		* (#-whitespace * punc * #-wordchar)
+		* free_modi_end
+		+
+		(B(#-wordchar) * punc * #-whitespace)
+		* Ct((inline
+				+ ((#-punc * #punctuation) * (V "Styled"))
+				+ (#-modi_end * punctuation / pandoc.Str)
+				+ whitespace / pandoc.Space
+				+ line_ending / pandoc.SoftBreak
+					) ^ 1)
+		* (#-whitespace * modi_end)
 end
 
 
@@ -77,8 +88,17 @@ local function list_item(lev, start)
 	return parser
 end
 
--- Grammar
-G = P {
+local debug_mode = true
+
+local function debug_wrapper(grammar)
+	if debug_mode then
+		return pegdebug.trace(grammar)
+	end
+	return grammar
+end
+
+-- HACK: parser runs really slowly without debug wrapper
+G = P (debug_wrapper {
 	"Doc",
 	Doc = Ct((V "Block" + (whitespace + line_ending)) ^ 0) / pandoc.Pandoc,
 	Block = (V "Heading" + nestableBlock + horizontal_rule),
@@ -105,19 +125,32 @@ G = P {
 	OrderedList = Ct(list_item(1, "~") ^ 1) / pandoc.OrderedList,
 	Space = whitespace ^ 1 / pandoc.Space,
 	Styled = (
-			attached_modifier("*") / pandoc.Strong      -- Bold
-		+ attached_modifier("/") / pandoc.Emph        -- Italic
-		+ attached_modifier("_") / pandoc.Underline   -- Underline
-		+ attached_modifier("-") / pandoc.Strikeout   -- StrikeThrough
-		-- TODO: Spoiler
-		+ attached_modifier("^") / pandoc.Superscript -- Superscript
-		+ attached_modifier(",") / pandoc.Subscript   -- Subscript
-		-- TODO: InlineCode
-		+ attached_modifier("%")                      -- NullModifier
-		+ attached_modifier("$") / pandoc.Math  -- InlineMath
-		-- TODO: Variable
+			V "Bold"
+		+ V "Italic"
+		+ V "Underline"
+		+ V "StrikeThrough"
+		-- FIX: speed goes too slow when I add more items from below
+		+ V "Spoiler"
+		+ V "Superscript"
+		+ V "Subscript"
+		+ V "InlineCode"
+		-- + V "NullModifier"
+		-- + V "InlineMath"
 	),
-}
+	Bold = attached_modifier("*") / pandoc.Strong,
+	Italic = attached_modifier("/") / pandoc.Emph,
+	Underline = attached_modifier("_") / pandoc.Underline,
+	StrikeThrough = attached_modifier("-") / pandoc.Strikeout,
+	-- TODO: add class for Span
+	Spoiler = attached_modifier("!") / pandoc.Span,
+	Superscript = attached_modifier("^") / pandoc.Superscript,
+	Subscript = attached_modifier(",") / pandoc.Subscript,
+	InlineCode = attached_modifier("`") / pandoc.Code,
+	-- TODO: wait... how to implement this???
+	NullModifier = attached_modifier("%"),
+	InlineMath = attached_modifier("$"),
+	Variable = attached_modifier("&")
+})
 
 function Reader(input, _reader_options)
 	return lpeg.match(G, tostring(input))
