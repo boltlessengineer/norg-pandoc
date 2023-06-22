@@ -1,8 +1,18 @@
+local lpeg = require "lpeg"
 -- stylua: ignore
 local P, S, R, Cf, Cc, Ct, V, Cs, Cg, Cb, B, C, Cmt =
 	lpeg.P, lpeg.S, lpeg.R, lpeg.Cf, lpeg.Cc, lpeg.Ct, lpeg.V, lpeg.Cs, lpeg.Cg, lpeg.Cb, lpeg.B, lpeg.C, lpeg.Cmt
 
 local pegdebug = require 'src.pegdebug'
+
+local debug_mode = false
+
+local function debug_wrapper(grammar)
+	if debug_mode then
+		return pegdebug.trace(grammar)
+	end
+	return grammar
+end
 
 local whitespace = S " \t"
 local line_ending = P "\r" ^ -1 * P "\n"
@@ -34,6 +44,8 @@ local function attached_modifier(punc_char)
 	local punc = P(punc_char)
 	local modi_end = punc * -wordchar
 	local free_modi_end = P "|" * modi_end
+	-- HACK: don't know reason why... but parsing is too slow without this empty lazy capture
+	local hack = Cmt(P(true), function() return true end)
 	return
 		(B(-wordchar) * punc * P "|")
 		* Ct((inline
@@ -45,7 +57,7 @@ local function attached_modifier(punc_char)
 		+
 		(B(#-wordchar) * punc * #-whitespace)
 		* Ct((inline
-				+ ((#-punc * #punctuation) * (V "Styled"))
+				+ ((#-punc * #punctuation) * hack * (V "Styled"))
 				+ (#-modi_end * punctuation / pandoc.Str)
 				+ whitespace / pandoc.Space
 				+ line_ending / pandoc.SoftBreak
@@ -88,15 +100,6 @@ local function list_item(lev, start)
 	return parser
 end
 
-local debug_mode = true
-
-local function debug_wrapper(grammar)
-	if debug_mode then
-		return pegdebug.trace(grammar)
-	end
-	return grammar
-end
-
 -- HACK: parser runs really slowly without debug wrapper
 G = P (debug_wrapper {
 	"Doc",
@@ -129,7 +132,6 @@ G = P (debug_wrapper {
 		+ V "Italic"
 		+ V "Underline"
 		+ V "StrikeThrough"
-		-- FIX: speed goes too slow when I add more items from below
 		+ V "Spoiler"
 		+ V "Superscript"
 		+ V "Subscript"
