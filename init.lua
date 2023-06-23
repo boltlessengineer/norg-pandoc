@@ -168,7 +168,9 @@ Grammar = (debug_wrapper {
 	Underline = attached_modifier("_") / pandoc.Underline,
 	StrikeThrough = attached_modifier("-") / pandoc.Strikeout,
 	-- TODO: add class for Span
-	Spoiler = attached_modifier("!") / pandoc.Span,
+	Spoiler = attached_modifier("!") / function (inline)
+		return pandoc.Span(inline, { class = "spoiler" })
+	end,
 	Superscript = attached_modifier("^") / pandoc.Superscript,
 	Subscript = attached_modifier(",") / pandoc.Subscript,
 	InlineCode = attached_modifier("`", true) / pandoc.Code,
