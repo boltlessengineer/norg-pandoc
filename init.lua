@@ -7,11 +7,18 @@ local pegdebug = require 'src.pegdebug'
 
 local debug_mode = false
 
-local function debug_wrapper(grammar)
+local function debug_wrapper(g)
 	if debug_mode then
-		return pegdebug.trace(grammar)
+		return pegdebug.trace(g)
 	end
-	return grammar
+	return g
+end
+
+local function choice(patt, ...)
+	for _, p in pairs({...}) do
+		patt = patt + p
+	end
+	return patt
 end
 
 local whitespace = S " \t"
@@ -38,42 +45,59 @@ local paragraph_break = whitespace ^ 0 * line_ending
 local paragraph_end = paragraph_break
 local soft_break = line_ending * #-paragraph_break
 
-local inline = (wordchar + escape_sequence) ^ 1 / pandoc.Str
-
-local function attached_modifier(punc_char)
+local function attached_modifier(punc_char, verbatim)
 	local punc = P(punc_char)
-	local modi_end = punc * -wordchar
-	local free_modi_end = P "|" * modi_end
+	local non_whitespace_char = wordchar + punctuation
+
+	local modi_start = (#-B(wordchar) * punc * #non_whitespace_char)
+	local free_modi_start = (#-B(wordchar) * punc * P "|")
+	local modi_end = B(non_whitespace_char) * punc * -wordchar
+	local free_modi_end = P "|" * punc * -wordchar
+
+	local non_repeat_eol = (line_ending - line_ending ^ 2)
 	-- HACK: don't know reason why... but parsing is too slow without this empty lazy capture
 	local hack = Cmt(P(true), function() return true end)
+	local inner_capture = Ct(choice(
+		-- FIX: */italic *ignore*/ bold*
+		-- */italic *ignore/ bold*
+		(#(punctuation * -punc) * hack * (V "Styled")),
+		(wordchar + escape_sequence + (#-modi_end * punctuation)) ^ 1 / pandoc.Str,
+		whitespace / pandoc.Space,
+		non_repeat_eol / pandoc.SoftBreak
+	) ^ 1)
+	local free_inner_capture = Ct(choice(
+		(wordchar + (#-free_modi_end * punctuation)) ^ 1 / pandoc.Str,
+		whitespace / pandoc.Space,
+		non_repeat_eol / pandoc.LineBreak
+	) ^ 1)
+	if verbatim then
+		free_inner_capture = C(choice(
+			(wordchar + (#-free_modi_end * punctuation)) ^ 1,
+			whitespace,
+			non_repeat_eol
+		) ^ 1)
+		inner_capture = C(choice(
+			(wordchar + escape_sequence + (#-modi_end * punctuation)) ^ 1,
+			whitespace,
+			non_repeat_eol
+		) ^ 1)
+	end
 	return
-		(B(-wordchar) * punc * P "|")
-		* Ct((inline
-				+ (#-free_modi_end * punctuation / pandoc.Str)
-				+ whitespace / pandoc.Space
-				+ line_ending / pandoc.SoftBreak
-					) ^ 1)
-		* free_modi_end
+		free_modi_start * free_inner_capture * free_modi_end
 		+
-		(B(#-wordchar) * punc * #-whitespace)
-		* Ct((inline
-				+ ((#-punc * #punctuation) * hack * (V "Styled"))
-				+ (#-modi_end * punctuation / pandoc.Str)
-				+ whitespace / pandoc.Space
-				+ line_ending / pandoc.SoftBreak
-					) ^ 1)
-		* (#-whitespace * modi_end)
+		modi_start * inner_capture * modi_end
 end
-
 
 -- stylua: ignore
 local paragraph_segment =
-		(
-			inline
-		+ V "Styled"
-		+ punctuation / pandoc.Str
-		+ whitespace / pandoc.Space
-		) ^ 1
+		choice(
+			V "Styled",
+			(wordchar + escape_sequence) ^ 1 / pandoc.Str,
+			punctuation / pandoc.Str,
+		  whitespace / pandoc.Space
+		) ^ 1 / function (...)
+			return ...
+		end
 
 local function list_item(lev, start)
 	local sp = P(start)
@@ -100,8 +124,7 @@ local function list_item(lev, start)
 	return parser
 end
 
--- HACK: parser runs really slowly without debug wrapper
-G = P (debug_wrapper {
+Grammar = (debug_wrapper {
 	"Doc",
 	Doc = Ct((V "Block" + (whitespace + line_ending)) ^ 0) / pandoc.Pandoc,
 	Block = (V "Heading" + nestableBlock + horizontal_rule),
@@ -136,8 +159,9 @@ G = P (debug_wrapper {
 		+ V "Superscript"
 		+ V "Subscript"
 		+ V "InlineCode"
-		-- + V "NullModifier"
-		-- + V "InlineMath"
+		+ V "NullModifier"
+		+ V "InlineMath"
+		+ V "Variable"
 	),
 	Bold = attached_modifier("*") / pandoc.Strong,
 	Italic = attached_modifier("/") / pandoc.Emph,
@@ -147,13 +171,22 @@ G = P (debug_wrapper {
 	Spoiler = attached_modifier("!") / pandoc.Span,
 	Superscript = attached_modifier("^") / pandoc.Superscript,
 	Subscript = attached_modifier(",") / pandoc.Subscript,
-	InlineCode = attached_modifier("`") / pandoc.Code,
-	-- TODO: wait... how to implement this???
-	NullModifier = attached_modifier("%"),
-	InlineMath = attached_modifier("$"),
-	Variable = attached_modifier("&")
+	InlineCode = attached_modifier("`", true) / pandoc.Code,
+	NullModifier = attached_modifier("%") / function () return nil end,
+	InlineMath = attached_modifier("$", true) / function (text) return pandoc.Math("InlineMath", text) end,
+	Variable = attached_modifier("&", true) / pandoc.Str
 })
+G = P(Grammar)
 
 function Reader(input, _reader_options)
-	return lpeg.match(G, tostring(input))
+	print(pandoc.Strong("asdf"))
+	print(pandoc.Code("asdf"))
+	print("============[INPUT:]============")
+	print(input)
+	if debug_mode then
+		print("============[DEBUG:]============")
+	end
+	local match = lpeg.match(G, tostring(input))
+	print("============[RESULT]============")
+	return match
 end

@@ -1,3 +1,10 @@
+* ( ) Code
+	- (!) add testing
+	- (?) remove pandoc dependency
+			 use special `token(id, patt)` function to replace all `/ pandoc.Whatever`
+			 this function will be different if global `as_pandoc` option.
+			 if `as_pandoc == false`, `token` will be a table containing `id` and captured values.
+			 it is useful for debuging.
 * ( ) implement custom pandoc reader
 	- ( ) Layer 1
 	-- ( ) Attached Modifiers
