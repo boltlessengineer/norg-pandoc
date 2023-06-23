@@ -12,3 +12,9 @@
 ** Parser Implementation State
 
 	 You can see detailed current state in {./blob/main/todo.md}[todo.md]
+
+** Contributing
+
+	 All contributings are welcome!
+	 You can test with {https://github.com/lunarmodules/busted}[busted] before making PR.
+	 All test files should be named like: `test/*_spec.lua`.

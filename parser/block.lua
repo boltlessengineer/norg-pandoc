@@ -1,6 +1,6 @@
 require('globals')
 
-local paragarph = require('parsers.paragarph')
+local paragraph = require('parser.paragraph')
 local token     = require('token')
 
 local M = {}
@@ -19,7 +19,7 @@ local function list_item(lev, start)
 		* sp ^ lev
 		* #-sp
 		* whitespace
-		* paragarph.paragraph_segment
+		* V "ParaSeg"
 		* line_ending
 		* (Ct(subitem "-" ^ 1) / token.bullet_list
 			+ Ct(subitem "~" ^ 1) / token.ordered_list
@@ -30,22 +30,22 @@ local function list_item(lev, start)
 	return parser
 end
 
-local unordered_list = Ct(list_item(1, "-") ^ 1) / token.bullet_list
-local ordered_list = Ct(list_item(1, "~") ^ 1) / token.ordered_list
-local list = unordered_list + ordered_list
+M.unordered_list = Ct(list_item(1, "-") ^ 1) / token.bullet_list
+M.ordered_list = Ct(list_item(1, "~") ^ 1) / token.ordered_list
+M.list = V"UnorderedList" + V"OrderedList"
 
-local nestable_block = choice(
-	list,
-    paragarph.paragraph
+M.nestable_block = choice(
+	V"list",
+    V"Para"
 )
 
 local horizontal_rule = P "_" ^ 3 / token.horizontal_rule
 
-M.block = nestable_block + horizontal_rule
+M.block = V "nestable_block" + horizontal_rule
 
 M.heading = (P "*" ^ 1 / string.len)
     * whitespace ^ 1
-    * Ct(paragarph.paragraph_segment)
+    * Ct(V "ParaSeg")
     * line_ending
     / token.heading
 

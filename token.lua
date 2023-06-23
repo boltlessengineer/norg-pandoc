@@ -4,7 +4,7 @@ end
 
 ---returns token function. use pandoc if possible
 ---@param id string
----@param fallback? fun(function, ...)
+---@param fallback? fun(function, ...): any
 local function pandoc_fb(id, fallback)
 	if pandoc then
 		if pandoc[id] and not fallback then
@@ -25,9 +25,10 @@ end
 
 local M = {
 	str = pandoc_fb("Str"),
+	punc = pandoc_fb("Str"),
 	para = pandoc_fb("Para"),
 	space = pandoc_fb("Space"),
-	para_seg = pandoc_fb("ParaSeg"),
+	para_seg = pandoc_fb("Inlines"),
 	soft_break = pandoc_fb("SoftBreak"),
 	bullet_list = pandoc_fb("BulletList"),
 	ordered_list = pandoc_fb("OrderedList"),

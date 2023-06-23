@@ -52,38 +52,30 @@ local function attached_modifier(punc_char, verbatim)
 		modi_start * inner_capture * modi_end
 end
 
-M.paragraph_segment = P {
-	choice(
+M.paragraph_segment = Ct(choice(
 		V "Styled",
 		(wordchar + escape_sequence) ^ 1 / token.str,
 		punctuation / token.str,
 		whitespace / token.space
-	) ^ 1 / token.para_seg,
-	Styled = hack * choice(
-		attached_modifier("*") / token.bold,
-		attached_modifier("/") / token.italic,
-		attached_modifier("_") / token.underline,
-		attached_modifier("-") / token.strikethrough,
-		attached_modifier("!") / token.spoiler,
-		attached_modifier("^") / token.superscript,
-		attached_modifier(",") / token.subscript,
-		attached_modifier("`", true) / token.inline_code,
-		attached_modifier("%") / token.null_modifier,
-		attached_modifier("$", true) / token.inline_math,
-		attached_modifier("&", true) / token.variable
-	),
-}
+	) ^ 1) / token.para_seg
 
--- M.paragraph_segment = choice(
--- 		V "Styled",
--- 		(wordchar + escape_sequence) ^ 1 / token.str,
--- 		punctuation / token.str,
--- 		whitespace / token.space
--- 	) ^ 1 / token.para_seg
+M.styled = choice(
+	attached_modifier("*") / token.bold,
+	attached_modifier("/") / token.italic,
+	attached_modifier("_") / token.underline,
+	attached_modifier("-") / token.strikethrough,
+	attached_modifier("!") / token.spoiler,
+	attached_modifier("^") / token.superscript,
+	attached_modifier(",") / token.subscript,
+	attached_modifier("`", true) / token.inline_code,
+	attached_modifier("%") / token.null_modifier,
+	attached_modifier("$", true) / token.inline_math,
+	attached_modifier("&", true) / token.variable
+)
 
 M.paragraph = Ct(
-	M.paragraph_segment
-	* ((soft_break / token.soft_break) * M.paragraph_segment) ^ 0
+	V "ParaSeg"
+	* ((soft_break / token.soft_break) * V "ParaSeg") ^ 0
 ) * paragraph_end ^ 0
   / token.para
 

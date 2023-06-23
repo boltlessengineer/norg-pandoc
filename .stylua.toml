@@ -1,2 +1,4 @@
-column_width = 80
+column_width = 120
 call_parentheses = "None"
+indent_type = "Spaces"
+indent_width = 4
