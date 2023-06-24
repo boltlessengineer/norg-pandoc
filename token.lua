@@ -17,6 +17,11 @@ local function pandoc_fb(id, fallback)
             return empty_fn
         end
     else
+        if id == "Space" or id == "SoftBreak" or id == "LineBreak" then
+            return function()
+                return { id }
+            end
+        end
         return function(...)
             return { id, ... }
         end

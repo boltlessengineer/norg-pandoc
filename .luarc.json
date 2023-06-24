@@ -1,3 +1,4 @@
 {
-  "diagnostics.globals": ["lpeg", "pandoc", "insulate", "describe", "it"]
+  "diagnostics.globals": ["lpeg", "pandoc", "insulate", "describe", "it",
+        "before_each"]
 }

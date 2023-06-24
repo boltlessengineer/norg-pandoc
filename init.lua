@@ -8,6 +8,7 @@ _G.grammar = {
     "Doc",
     Doc = Ct((V "Block" + (whitespace + line_ending)) ^ 0) / token.pandoc,
     Block = block.block,
+    Heading = block.heading,
     nestable_block = block.nestable_block,
     list = block.list,
     UnorderedList = block.unordered_list,

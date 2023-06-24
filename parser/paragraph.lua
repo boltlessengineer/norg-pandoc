@@ -23,7 +23,8 @@ local function attached_modifier(punc_char, verbatim)
 
     local non_repeat_eol = (line_ending - line_ending ^ 2)
     local inner_capture = Ct(choice {
-        -- FIX: */italic *ignore*/ bold*
+        -- FIX: */*ignore* italic/ bold*
+        -- */italic *ignore*/ bold*
         -- */italic *ignore/ bold*
         (#(punctuation * -punc) * hack * (V "Styled")),
         (wordchar + escape_sequence + (#-modi_end * punctuation)) ^ 1 / token.str,
@@ -47,7 +48,10 @@ local function attached_modifier(punc_char, verbatim)
             non_repeat_eol,
         } ^ 1)
     end
-    return free_modi_start * free_inner_capture * free_modi_end + modi_start * inner_capture * modi_end
+    return choice {
+        free_modi_start * free_inner_capture * free_modi_end,
+        modi_start * inner_capture * modi_end,
+    }
 end
 
 M.paragraph_segment = Ct(choice {
@@ -60,17 +64,17 @@ M.paragraph_segment = Ct(choice {
 M.styled = choice {
     attached_modifier "*" / token.bold,
     attached_modifier "/" / token.italic,
-    attached_modifier "_" / token.underline,
-    attached_modifier "-" / token.strikethrough,
-    attached_modifier "!" / token.spoiler,
-    attached_modifier "^" / token.superscript,
-    attached_modifier "," / token.subscript,
-    attached_modifier("`", true) / token.inline_code,
-    attached_modifier "%" / token.null_modifier,
-    attached_modifier("$", true) / token.inline_math,
-    attached_modifier("&", true) / token.variable,
+    -- attached_modifier "_" / token.underline,
+    -- attached_modifier "-" / token.strikethrough,
+    -- attached_modifier "!" / token.spoiler,
+    -- attached_modifier "^" / token.superscript,
+    -- attached_modifier "," / token.subscript,
+    -- attached_modifier("`", true) / token.inline_code,
+    -- attached_modifier "%" / token.null_modifier,
+    -- attached_modifier("$", true) / token.inline_math,
+    -- attached_modifier("&", true) / token.variable,
 }
 
-M.paragraph = Ct(V "ParaSeg" * ((soft_break / token.soft_break) * V "ParaSeg") ^ 0) * paragraph_end ^ 0 / token.para
+M.paragraph = C(V "ParaSeg" * ((soft_break / token.soft_break) * V "ParaSeg") ^ 0) * paragraph_end ^ 0 / token.para
 
 return M
