@@ -3,10 +3,6 @@ local token = require "token"
 
 local M = {}
 
-local paragraph_break = whitespace ^ 0 * line_ending ^ 2
-local paragraph_end = paragraph_break
-local soft_break = line_ending * #-paragraph_break
-
 local state = {}
 
 local function attached_modifier(punc_char, verbatim)
@@ -61,17 +57,6 @@ local function attached_modifier(punc_char, verbatim)
     }
 end
 
-M.paragraph_segment = (
-    whitespace ^ 0
-    * choice {
-        V "Styled",
-        wordchar ^ 1 / token.str,
-        escape_sequence / token.punc,
-        punctuation / token.punc,
-        whitespace / token.space,
-    } ^ 1
-) / token.para_seg
-
 M.styled = choice {
     attached_modifier "*" / token.bold,
     attached_modifier "/" / token.italic,
@@ -85,6 +70,18 @@ M.styled = choice {
     attached_modifier("$", true) / token.inline_math,
     attached_modifier("&", true) / token.variable,
 }
+
+M.paragraph_segment = (
+    whitespace ^ 0
+    * choice {
+            V "Styled",
+            wordchar ^ 1 / token.str,
+            escape_sequence / token.punc,
+            punctuation / token.punc,
+            whitespace / token.space,
+        }
+        ^ 1
+) / token.para_seg
 
 local function print_passed(...)
     local args = { ... }
