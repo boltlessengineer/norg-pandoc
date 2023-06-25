@@ -75,6 +75,6 @@ M.styled = choice {
     -- attached_modifier("&", true) / token.variable,
 }
 
-M.paragraph = C(V "ParaSeg" * ((soft_break / token.soft_break) * V "ParaSeg") ^ 0) * paragraph_end ^ 0 / token.para
+M.paragraph = V "ParaSeg" * ((soft_break / token.soft_break) * V "ParaSeg") ^ 0 * paragraph_end ^ 0 / token.para
 
 return M
