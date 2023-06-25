@@ -30,7 +30,7 @@ end
 
 local M = {
     str = pandoc_fb "Str",
-    -- punc = pandoc_fb "Str",
+    punc = pandoc_fb "Str",
     para = pandoc_fb "Para",
     space = pandoc_fb "Space",
     para_seg = pandoc_fb "Inlines",

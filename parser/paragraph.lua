@@ -33,7 +33,8 @@ local function attached_modifier(punc_char, verbatim)
     local non_repeat_eol = (line_ending - line_ending ^ 2)
     local inner_capture = Ct(choice {
         (#(punctuation - punc) * (V "Styled")),
-        (wordchar + escape_sequence + (#-modi_end * punctuation)) ^ 1 / token.str,
+        wordchar ^ 1 / token.str,
+        escape_sequence + (#-modi_end * punctuation) / token.punc,
         whitespace / token.space,
         non_repeat_eol / token.soft_break,
     } ^ 1)
@@ -62,8 +63,9 @@ end
 
 M.paragraph_segment = Ct(choice {
     V "Styled",
-    (wordchar + escape_sequence) ^ 1 / token.str,
-    punctuation / token.str,
+    wordchar ^ 1 / token.str,
+    escape_sequence / token.punc,
+    punctuation / token.punc,
     whitespace / token.space,
 } ^ 1) / token.para_seg
 

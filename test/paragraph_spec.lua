@@ -77,7 +77,13 @@ describe("paragarph >", function()
                 p:match(text),
                 t.para_seg {
                     t.bold {
-                        t.italic { t.str "*ignore*", t.space(), t.str "italic" },
+                        t.italic {
+                            t.punc "*",
+                            t.str "ignore",
+                            t.punc "*",
+                            t.space(),
+                            t.str "italic",
+                        },
                         t.space(),
                         t.str "bold",
                     },
