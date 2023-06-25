@@ -3,10 +3,10 @@ P, S, R, Cf, Cc, Ct, V, Cs, Cg, Cb, B, C, Cmt =
     lpeg.P, lpeg.S, lpeg.R, lpeg.Cf, lpeg.Cc, lpeg.Ct, lpeg.V, lpeg.Cs, lpeg.Cg, lpeg.Cb, lpeg.B, lpeg.C, lpeg.Cmt
 
 function _G.choice(patts)
-	local patt = patts[1]
-	for i = 2, #patts do
-		patt = patt + patts[i]
-	end
+    local patt = patts[1]
+    for i = 2, #patts do
+        patt = patt + patts[i]
+    end
     return patt
 end
 

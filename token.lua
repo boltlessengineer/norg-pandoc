@@ -30,7 +30,7 @@ end
 
 local M = {
     str = pandoc_fb "Str",
-    punc = pandoc_fb "Str",
+    -- punc = pandoc_fb "Str",
     para = pandoc_fb "Para",
     space = pandoc_fb "Space",
     para_seg = pandoc_fb "Inlines",
@@ -61,6 +61,7 @@ local M = {
     inline_math = pandoc_fb("Math", function(math, text)
         return math("InlineMath", text)
     end),
+    -- TODO: add custom class (or id) for it
     variable = pandoc_fb "Str",
     horizontal_rule = pandoc_fb "HorizontalRule",
 }

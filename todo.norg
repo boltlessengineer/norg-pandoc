@@ -1,23 +1,25 @@
 * ( ) Code
-	- (!) add testing
-	- (?) remove pandoc dependency
+	- ( ) add testing
+	-- (_) change test tool to something else (*busted*'s messages are hard to read)
+	-- ( ) add more test cases (copy from tree-sitter's)
+	- (x) remove pandoc dependency
 			 use special `token(id, patt)` function to replace all `/ pandoc.Whatever`
 			 this function will be different if global `as_pandoc` option.
 			 if `as_pandoc == false`, `token` will be a table containing `id` and captured values.
 			 it is useful for debuging.
 * ( ) implement custom pandoc reader
 	- ( ) Layer 1
-	-- ( ) Attached Modifiers
-	--- ( ) Bold
-	--- ( ) Italic
-	--- ( ) Underline
-	--- ( ) StrikeThrough
-	--- ( ) Spoiler
-	--- ( ) Superscript
-	--- ( ) Subscript
-	--- ( ) InlineCode
-	--- ( ) NullModifier
-	--- ( ) InlineMath
+	-- (x) Attached Modifiers
+	--- (x) Bold
+	--- (x) Italic
+	--- (x) Underline
+	--- (x) StrikeThrough
+	--- (x) Spoiler
+	--- (x) Superscript
+	--- (x) Subscript
+	--- (x) InlineCode
+	--- (x) NullModifier
+	--- (x) InlineMath
 	--- ( ) Variable
 	-- ( ) Links (only URL type)
 	-- (x) Escape Char
