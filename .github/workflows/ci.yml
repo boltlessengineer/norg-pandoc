@@ -23,12 +23,33 @@ jobs:
       - name: Lua Busted
         run: |
           busted --output=gtest -Xoutput --color
-  docs:
+  scan_changes:
     runs-on: ubuntu-latest
-    if: github.event.inputs.path == 'README.norg'
-    needs: tests
+    outputs:
+      readme: ${{ steps.filter.outputs.readme }}
     steps:
       - uses: actions/checkout@v3
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            readme: README.md
+  docs:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    needs:
+      - tests
+      - scan_changes
+    if: ${{ needs.changes.outputs.readme == 'true' }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            readme:
+              - 'README.norg'
       - name: Generate markdown file from norg file
         uses: docker://pandoc/core:3
         with:
