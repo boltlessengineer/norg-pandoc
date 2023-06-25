@@ -3,7 +3,7 @@ local token = require "token"
 
 local M = {}
 
-local paragraph_break = whitespace ^ 0 * line_ending
+local paragraph_break = whitespace ^ 0 * line_ending ^ 2
 local paragraph_end = paragraph_break
 local soft_break = line_ending * #-paragraph_break
 
@@ -36,12 +36,12 @@ local function attached_modifier(punc_char, verbatim)
         wordchar ^ 1 / token.str,
         escape_sequence + (#-modi_end * punctuation) / token.punc,
         whitespace / token.space,
-        non_repeat_eol / token.soft_break,
+        non_repeat_eol / token.line_break,
     } ^ 1)
     local free_inner_capture = Ct(choice {
         (wordchar + (#-free_modi_end * punctuation)) ^ 1 / token.str,
         whitespace / token.space,
-        non_repeat_eol / token.soft_break,
+        non_repeat_eol / token.line_break,
     } ^ 1)
     if verbatim then
         free_inner_capture = C(choice {
@@ -61,13 +61,16 @@ local function attached_modifier(punc_char, verbatim)
     }
 end
 
-M.paragraph_segment = Ct(choice {
-    V "Styled",
-    wordchar ^ 1 / token.str,
-    escape_sequence / token.punc,
-    punctuation / token.punc,
-    whitespace / token.space,
-} ^ 1) / token.para_seg
+M.paragraph_segment = (
+    whitespace ^ 0
+    * choice {
+        V "Styled",
+        wordchar ^ 1 / token.str,
+        escape_sequence / token.punc,
+        punctuation / token.punc,
+        whitespace / token.space,
+    } ^ 1
+) / token.para_seg
 
 M.styled = choice {
     attached_modifier "*" / token.bold,
@@ -83,6 +86,22 @@ M.styled = choice {
     attached_modifier("&", true) / token.variable,
 }
 
-M.paragraph = V "ParaSeg" * ((soft_break / token.soft_break) * V "ParaSeg") ^ 0 * paragraph_end ^ 0 / token.para
+local function print_passed(...)
+    local args = { ... }
+    print "=====args:====="
+    for key, value in pairs(args) do
+        if type(value) == "table" then
+            for k, v in pairs(value) do
+                print("  ", k, v)
+            end
+        else
+            print(value)
+        end
+    end
+    print "---------------"
+    return ...
+end
+
+M.paragraph = Ct(V "ParaSeg" * ((line_ending / token.line_break) * V "ParaSeg") ^ 0) / token.para
 
 return M

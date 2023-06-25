@@ -19,7 +19,7 @@ local function list_item(lev, start)
         * sp ^ lev
         * #-sp
         * whitespace
-        * V "ParaSeg"
+        * Ct(V "ParaSeg")
         * line_ending
         * (Ct(subitem "-" ^ 1) / token.bullet_list
             + Ct(subitem "~" ^ 1) / token.ordered_list
@@ -43,6 +43,6 @@ local horizontal_rule = P "_" ^ 3 / token.horizontal_rule
 
 M.block = V "Heading" + V "nestable_block" + horizontal_rule
 
-M.heading = (P "*" ^ 1 / string.len) * whitespace ^ 1 * V "ParaSeg" * line_ending / token.heading
+M.heading = (P "*" ^ 1 / string.len) * whitespace ^ 1 * Ct(V "ParaSeg") / token.heading
 
 return M

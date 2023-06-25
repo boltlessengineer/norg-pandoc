@@ -15,6 +15,6 @@
 
 ** Contributing
 
-	 All contributings are welcome!
-	 You can test with {https://github.com/lunarmodules/busted}[busted] before making PR.
+	 All contributions are welcome!
+	 You can test with {https://github.com/lunarmodules/busted}[busted] or {https://github.com/nvim-neotest/neotest-plenary}[neotest-plenary] before making a PR.
 	 All test files should be named like: `test/*_spec.lua`.

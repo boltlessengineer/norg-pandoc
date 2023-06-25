@@ -18,6 +18,7 @@ _G.grammar = {
     Styled = paragraph.styled,
 }
 
+-- _G.grammar = require("src.pegdebug").trace(grammar)
 G = P(grammar)
 
 function Reader(input, _reader_options)
