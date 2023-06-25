@@ -21,8 +21,10 @@ You can see detailed current state in [todo.norg](./blob/main/todo.norg)
 
 ## Contributing
 
-All contributions are welcome!  
+All contributions are welcome!
+
 You can test with [busted](https://github.com/lunarmodules/busted) or
 [neotest-plenary](https://github.com/nvim-neotest/neotest-plenary)
-before making a PR.  
+before making a PR.
+
 All test files should be named like: `test/*_spec.lua`.
