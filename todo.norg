@@ -8,7 +8,7 @@
 			 if `as_pandoc == false`, `token` will be a table containing `id` and captured values.
 			 it is useful for debuging.
 * ( ) implement custom pandoc reader
-	- ( ) Layer 1
+	- (?) Layer 1
 	-- (x) Attached Modifiers
 	--- (x) Bold
 	--- (x) Italic
@@ -20,8 +20,10 @@
 	--- (x) InlineCode
 	--- (x) NullModifier
 	--- (x) InlineMath
-	--- ( ) Variable
-	-- ( ) Links (only URL type)
+	--- (?) Variable
+				 can this really contain newline..?
+	-- (?) Links (only URL type)
+				how should we treat newline charactors in link destinations?
 	-- (x) Escape Char
 	- ( ) Layer 2
 	-- ( ) Nestable Detached Modifiers

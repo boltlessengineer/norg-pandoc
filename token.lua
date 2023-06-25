@@ -4,7 +4,7 @@ end
 
 ---returns token function. use pandoc if possible
 ---@param id string
----@param fallback? fun(function, ...): any
+---@param fallback? fun(pandoc_fn:function, ...): any
 local function pandoc_fb(id, fallback)
     if pandoc then
         if pandoc[id] and not fallback then
@@ -66,6 +66,7 @@ local M = {
     -- TODO: add custom class (or id) for it
     variable = pandoc_fb "Str",
     horizontal_rule = pandoc_fb "HorizontalRule",
+    link = pandoc_fb "Link",
 }
 
 return M

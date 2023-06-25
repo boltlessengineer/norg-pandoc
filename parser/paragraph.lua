@@ -29,6 +29,7 @@ local function attached_modifier(punc_char, verbatim)
     local non_repeat_eol = (line_ending - line_ending ^ 2)
     local inner_capture = Ct(choice {
         (#(punctuation - punc) * (V "Styled")),
+        V "Link",
         wordchar ^ 1 / token.str,
         escape_sequence + (#-modi_end * punctuation) / token.punc,
         whitespace / token.space,
@@ -71,10 +72,23 @@ M.styled = choice {
     attached_modifier("&", true) / token.variable,
 }
 
+local link_dest = P "{" * C((1 - (P "}" + line_ending)) ^ 0) * P "}"
+local link_desc = P "[" * C((1 - (P "]" + line_ending)) ^ 0) * P "]"
+
+M.link = link_dest
+    * link_desc ^ -1
+    / function(dest, desc)
+        local text = desc or dest
+        return token.link(text, dest)
+    end
+-- TODO: implement anchor
+M.anchor = link_desc * (link_dest + link_desc) ^ -1
+
 M.paragraph_segment = (
     whitespace ^ 0
     * choice {
             V "Styled",
+            V "Link",
             wordchar ^ 1 / token.str,
             escape_sequence / token.punc,
             punctuation / token.punc,

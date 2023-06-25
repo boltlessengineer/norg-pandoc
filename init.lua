@@ -16,6 +16,7 @@ _G.grammar = {
     ParaSeg = paragraph.paragraph_segment,
     Para = paragraph.paragraph,
     Styled = paragraph.styled,
+    Link = paragraph.link,
 }
 
 -- _G.grammar = require("src.pegdebug").trace(grammar)
