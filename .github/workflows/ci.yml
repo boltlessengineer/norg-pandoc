@@ -32,8 +32,9 @@ jobs:
       - uses: dorny/paths-filter@v2
         id: filter
         with:
+          # more gnereal filter like *.norg would be better
           filters: |
-            readme: README.md
+            readme: README.norg
   docs:
     runs-on: ubuntu-latest
     permissions:
@@ -41,7 +42,7 @@ jobs:
     needs:
       - tests
       - scan_changes
-    if: ${{ needs.changes.outputs.readme == 'true' }}
+    if: ${{ needs.scan_changes.outputs.readme == 'true' }}
     steps:
       - uses: actions/checkout@v3
       - uses: dorny/paths-filter@v2
