@@ -27,7 +27,10 @@
 	-- (x) Escape Char
 	- ( ) Layer 2
 	-- ( ) Nestable Detached Modifiers
-	-- ( ) Headings
+	--- (x) ordered / unordered lists
+	--- ( ) quotes
+	--- ( ) attributes
+	-- (x) Headings
 	-- ( ) Links (minus *timestamps*, *wikilinks*, *extendable links(=)*, *anchors*)
 	-- ( ) Verbatim Ranged Tags
 	-- ( ) Delimiting Modifiers

@@ -22,6 +22,11 @@ local function pandoc_fb(id, fallback)
                 return { id }
             end
         end
+        if id == "List" then
+            return function(...)
+                return { ... }
+            end
+        end
         return function(...)
             return { id, ... }
         end
@@ -40,6 +45,8 @@ local M = {
     bullet_list = pandoc_fb "BulletList",
     ordered_list = pandoc_fb "OrderedList",
     _plain = pandoc_fb "Plain",
+    -- TODO: use this for para_seg
+    _list = pandoc_fb "List",
     pandoc = pandoc_fb "Pandoc",
     heading = pandoc_fb("Header", function(header, ...)
         local args = { ... }

@@ -113,6 +113,15 @@ local function print_passed(...)
     return ...
 end
 
-M.paragraph = Ct(V "ParaSeg" * ((line_ending / token.line_break) * V "ParaSeg") ^ 0) / token.para
+local soft_break = line_ending / token.soft_break
+-- FIX: don't try to parse whole cases... this might cause performace issue
+local paragraph_terminate = choice {
+    (whitespace ^ 0 * line_ending),
+    V "detached_modifier",
+    -- V "delimiting_modifier",
+    -- V "ranged_tag",
+    -- V "strong_carryover_tag"
+}
+M.paragraph = Ct(V "ParaSeg" * (soft_break * (V "ParaSeg" - paragraph_terminate)) ^ 0) / token.para
 
 return M

@@ -10,6 +10,16 @@ function _G.choice(patts)
     return patt
 end
 
+---empty pattern to do something when pattern is matched
+---@param callback fun(str,num,...):any
+---@return any
+function _G.debug_p(callback)
+    return Cmt(P(true), function(s, n, ...)
+        local r = callback(s, n, ...)
+        return r ~= nil and r or true
+    end)
+end
+
 _G.whitespace = S " \t"
 _G.line_ending = P "\r" ^ -1 * P "\n"
 _G.punctuation = S [[!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~]]
