@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup ‘lua’
+        uses: leafo/gh-actions-lua@v9
+        with:
+          luaVersion: 5.4
+      - name: Setup ‘luarocks’
+        uses: leafo/gh-actions-luarocks@v4
+      - name: Setup dependencies
+        run: |
+          luarocks install lpeg
+          luarocks install busted
+      - name: Lua Busted
+        run: |
+          busted --output=gtest -Xoutput --color
+  docs:
+    runs-on: ubuntu-latest
+    if: github.event.inputs.path == 'README.norg'
+    needs: tests
+    steps:
+      - uses: actions/checkout@v3
+      - name: Generate markdown file from norg file
+        uses: docker://pandoc/core:3
+        with:
+          args: >-
+            README.norg
+            --from=init.lua
+            --to=gfm
+            --output=README.md
+      - name: Push changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "chore(build): update README.md"
+          commit_user_name: "github-actions[bot]"
+          commit_user_email: "github-actions[bot]@users.noreply.github.com"
+          commit_author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
