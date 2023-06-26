@@ -63,6 +63,33 @@ local horizontal_rule = P "_" ^ 3 / token.horizontal_rule
 
 M.heading = (P "*" ^ 1 / string.len) * whitespace ^ 1 * Ct(V "ParaSeg") / token.heading
 
+local standard_ranged_tag_prefix = P "|"
+local verbatim_ranged_tag_prefix = P "@"
+local macro_ranged_tag_prefix = P "="
+
+local function make_end(prefix)
+    return B(line_ending_ch) * whitespace ^ 0 * prefix * P "end" * line_ending
+end
+
+do
+    local _end = make_end(verbatim_ranged_tag_prefix)
+    local _start = verbatim_ranged_tag_prefix
+        * C((wordchar + punctuation) ^ 1)
+        * Ct((whitespace ^ 1 * C((wordchar + punctuation) ^ 1)) ^ 0)
+        * line_ending
+    M.verbatim_ranged_tag = _start
+        * C((1 - _end) ^ 1)
+        * _end
+        / function(name, param, content)
+            print(name, param)
+            local class = ""
+            if #param > 0 then
+                class = table.concat(param, " ")
+            end
+            return token.code_block(content, { class = class })
+        end
+end
+
 M.detached_modifier = choice {
     V "Heading",
     V "list",
@@ -71,6 +98,7 @@ M.detached_modifier = choice {
 
 M.block = choice {
     V "detached_modifier",
+    V "verbatim_ranged_tag",
     V "Para",
 }
 

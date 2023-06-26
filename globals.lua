@@ -15,7 +15,7 @@ end
 ---empty pattern to do something when pattern is matched
 ---@param callback fun(str,num,...):any
 ---@return any
-function _G.debug_p(callback)
+function _G.empty_pat(callback)
     return Cmt(P(true), function(s, n, ...)
         local r = callback(s, n, ...)
         return r ~= nil and r or true
@@ -31,21 +31,9 @@ function _G.print_cap(...)
     return ...
 end
 
--- preparing for refactor
-_G.grammar = {}
-_G.g = {}
-setmetatable(g, {
-    __index = function(_, key)
-        if grammar[key] then
-            return V(key)
-        else
-            error("Grammar '" .. key .. "' not found", 2)
-        end
-    end,
-})
-
 _G.whitespace = S " \t"
 _G.line_ending = P "\r" ^ -1 * P "\n"
+_G.line_ending_ch = S "\r\n"
 _G.punctuation = S [[!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~]]
 
 _G.wordchar = (1 - (whitespace + line_ending + punctuation))

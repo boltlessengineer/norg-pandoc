@@ -21,6 +21,7 @@ _G.grammar = {
     Para = paragraph.paragraph,
     Styled = paragraph.styled,
     Link = paragraph.link,
+    verbatim_ranged_tag = block.verbatim_ranged_tag,
 }
 
 -- _G.grammar = require("src.pegdebug").trace(grammar)

@@ -32,9 +32,16 @@
 	--- (?) attributes
 					should this be in Layer 2?
 	-- (x) Headings
-	-- ( ) Links (minus *timestamps*, *wikilinks*, *extendable links(=)*, *anchors*)
 	-- ( ) Verbatim Ranged Tags
+	--- (x) `@code`
+	--- (_) `@document.meta`
+				 this would be done via standard library in future
 	-- ( ) Delimiting Modifiers
+	-- ( ) Links (minus *timestamps*, *wikilinks*, *extendable links(=)*, *anchors*)
+	--- ( ) to File Location
+	--- (?) to Line Number
+				 see: {https://github.com/nvim-neorg/norg-specs/issues/22}[#22]
+	--- ( ) to Detached Modifier
 	- ( ) Layer 3
 	-- ( ) Links (*timestamps*, *wikilinks*)
 	-- ( ) Inline Link Targets

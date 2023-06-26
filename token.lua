@@ -75,6 +75,7 @@ local M = {
     variable = pandoc_fb "Str",
     horizontal_rule = pandoc_fb "HorizontalRule",
     link = pandoc_fb "Link",
+    code_block = pandoc_fb "CodeBlock",
 }
 
 return M
