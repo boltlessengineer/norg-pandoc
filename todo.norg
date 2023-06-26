@@ -1,66 +1,66 @@
 * ( ) Code
-	- ( ) add testing
-	-- (_) change test tool to something else (*busted*'s messages are hard to read)
-	-- ( ) add more test cases (copy from tree-sitter's)
-	- (x) remove pandoc dependency
-			 use special `token(id, patt)` function to replace all `/ pandoc.Whatever`
-			 this function will be different if global `as_pandoc` option.
-			 if `as_pandoc == false`, `token` will be a table containing `id` and captured values.
-			 it is useful for debuging.
+  - ( ) add testing
+  -- (_) change test tool to something else (*busted*'s messages are hard to read)
+  -- ( ) add more test cases (copy from tree-sitter's)
+  - (x) remove pandoc dependency
+       use special `token(id, patt)` function to replace all `/ pandoc.Whatever`
+       this function will be different if global `as_pandoc` option.
+       if `as_pandoc == false`, `token` will be a table containing `id` and captured values.
+       it is useful for debuging.
 * ( ) implement custom pandoc reader
-	- (?) Layer 1
-	-- (x) Attached Modifiers
-	--- (x) Bold
-	--- (x) Italic
-	--- (x) Underline
-	--- (x) StrikeThrough
-	--- (x) Spoiler
-	--- (x) Superscript
-	--- (x) Subscript
-	--- (x) InlineCode
-	--- (x) NullModifier
-	--- (x) InlineMath
-	--- (?) Variable
-				 can this really contain newline..?
-	-- (?) Links (only URL type)
-				how should we treat newline charactors in link destinations?
-	-- (x) Escape Char
-	- ( ) Layer 2
-	-- (x) Nestable Detached Modifiers
-	--- (x) ordered / unordered lists
-	--- (x) quotes
-	--- (?) attributes
-					should this be in Layer 2?
-	-- (x) Headings
-	-- ( ) Verbatim Ranged Tags
-	--- (x) `@code`
-	--- (_) `@document.meta`
-				 this would be done via standard library in future
-	-- ( ) Delimiting Modifiers (like horizontal rules)
-	-- ( ) Links (minus *timestamps*, *wikilinks*, *extendable links(=)*, *anchors*)
-	--- ( ) to File Location
-	--- (?) to Line Number
-				 see: {https://github.com/nvim-neorg/norg-specs/issues/22}[#22]
-	--- (-) to Detached Modifier
-	- ( ) Layer 3
-	-- ( ) Links (*timestamps*, *wikilinks*)
-	-- ( ) Inline Link Targets
-	-- ( ) Carryover Tags
-	-- ( ) Detached Modifier Extensions
-	-- ( ) Detached Modifier Suffix
-	-- ( ) Range-able Detached Modifiers (minus *table cells*)
-	-- ( ) Link Modifier
-	- ( ) Layer 4
-	-- ( ) standard ranged tags (`\|comment`, etc.)
-	-- (?) table cells
-	-- (x) Free-form attached modifiers
-	-- ( ) ::
-				Intersecting Modifiers
-				This would enable code like:
+** (?) Layer 1
+   - (x) Attached Modifiers
+   -- (x) Bold
+   -- (x) Italic
+   -- (x) Underline
+   -- (x) StrikeThrough
+   -- (x) Spoiler
+   -- (x) Superscript
+   -- (x) Subscript
+   -- (x) InlineCode
+   -- (x) NullModifier
+   -- (x) InlineMath
+   -- (?) Variable
+        can this really contain newline..?
+   - (?) Links (only URL type)
+       how should we treat newline charactors in link destinations?
+   - (x) Escape Char
+** ( ) Layer 2
+   - (x) Nestable Detached Modifiers
+   -- (x) ordered / unordered lists
+   -- (x) quotes
+   -- (?) attributes
+          should this be in Layer 2?
+   - (x) Headings
+   - ( ) Verbatim Ranged Tags
+   -- (x) `@code`
+   -- (_) `@document.meta`
+         this would be done via standard library in future
+   - ( ) Delimiting Modifiers (like horizontal rules)
+   - ( ) Links (minus *timestamps*, *wikilinks*, *extendable links(=)*, *anchors*)
+   -- ( ) to File Location
+   -- (?) to Line Number
+         see: {https://github.com/nvim-neorg/norg-specs/issues/22}[#22]
+   -- (-) to Detached Modifier
+** ( ) Layer 3
+   - ( ) Links (*timestamps*, *wikilinks*)
+   - ( ) Inline Link Targets
+   - ( ) Carryover Tags
+   - ( ) Detached Modifier Extensions
+   - ( ) Detached Modifier Suffix
+   - ( ) Range-able Detached Modifiers (minus *table cells*)
+   - ( ) Link Modifier
+** ( ) Layer 4
+   - ( ) standard ranged tags (`\|comment`, etc.)
+   - (?) table cells
+   - (x) Free-form attached modifiers
+   - ( ) ::
+        Intersecting Modifiers
+        This would enable code like:
 @code norg
 $ Term : definition
 @end
-			 %TODO: add todos%
-	- ( ) Layer 5
-	-- ( ) *macros*
-			 %TODO: add todos%
+       %TODO: add todos%
+** ( ) Layer 5
+   - ( ) *macros*
+       %TODO: add todos%
