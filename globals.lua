@@ -31,6 +31,19 @@ function _G.print_cap(...)
     return ...
 end
 
+-- preparing for refactor
+_G.grammar = {}
+_G.g = {}
+setmetatable(g, {
+    __index = function(_, key)
+        if grammar[key] then
+            return V(key)
+        else
+            error("Grammar '" .. key .. "' not found", 2)
+        end
+    end,
+})
+
 _G.whitespace = S " \t"
 _G.line_ending = P "\r" ^ -1 * P "\n"
 _G.punctuation = S [[!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~]]

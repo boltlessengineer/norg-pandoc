@@ -98,22 +98,6 @@ M.paragraph_segment = (
         ^ 1
 ) / token.para_seg
 
-local function print_passed(...)
-    local args = { ... }
-    print "=====args:====="
-    for key, value in pairs(args) do
-        if type(value) == "table" then
-            for k, v in pairs(value) do
-                print("  ", k, v)
-            end
-        else
-            print(value)
-        end
-    end
-    print "---------------"
-    return ...
-end
-
 local soft_break = line_ending / token.soft_break
 local paragraph_terminate = choice {
     (whitespace ^ 0 * line_ending),

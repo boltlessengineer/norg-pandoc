@@ -71,7 +71,7 @@ local M = {
     inline_math = pandoc_fb("Math", function(math, text)
         return math("InlineMath", text)
     end),
-    -- TODO: add custom class (or id) for it
+    -- TODO: add custom class (not id, there can be many) for it
     variable = pandoc_fb "Str",
     horizontal_rule = pandoc_fb "HorizontalRule",
     link = pandoc_fb "Link",
