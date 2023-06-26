@@ -49,12 +49,7 @@ local M = {
     -- TODO: use this for para_seg
     _list = pandoc_fb "List",
     pandoc = pandoc_fb "Pandoc",
-    heading = pandoc_fb("Header", function(header, ...)
-        local args = { ... }
-        -- TODO: args[3] is attr. we can put id to header from here
-        -- e.g. in markdown, `# heading 1` have id attr value `heading-1`
-        return header(args[1], args[2], args[3])
-    end),
+    heading = pandoc_fb "Header",
     bold = pandoc_fb "Strong",
     italic = pandoc_fb "Emph",
     underline = pandoc_fb "Underline",

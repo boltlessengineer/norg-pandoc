@@ -41,7 +41,7 @@
 	--- ( ) to File Location
 	--- (?) to Line Number
 				 see: {https://github.com/nvim-neorg/norg-specs/issues/22}[#22]
-	--- ( ) to Detached Modifier
+	--- (-) to Detached Modifier
 	- ( ) Layer 3
 	-- ( ) Links (*timestamps*, *wikilinks*)
 	-- ( ) Inline Link Targets

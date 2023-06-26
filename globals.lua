@@ -1,6 +1,7 @@
 _G.lpeg = require "lpeg"
-P, S, R, Cf, Cc, Ct, V, Cs, Cg, Cb, B, C, Cmt =
-    lpeg.P, lpeg.S, lpeg.R, lpeg.Cf, lpeg.Cc, lpeg.Ct, lpeg.V, lpeg.Cs, lpeg.Cg, lpeg.Cb, lpeg.B, lpeg.C, lpeg.Cmt
+-- stylua: ignore
+P, S, R, Cf, Cc, Ct, V, Cs, Cg, Cb, B, C, Cmt, Cp =
+    lpeg.P, lpeg.S, lpeg.R, lpeg.Cf, lpeg.Cc, lpeg.Ct, lpeg.V, lpeg.Cs, lpeg.Cg, lpeg.Cb, lpeg.B, lpeg.C, lpeg.Cmt, lpeg.Cp
 
 local inspect = require "src.inspect"
 
