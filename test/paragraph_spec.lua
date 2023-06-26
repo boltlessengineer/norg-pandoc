@@ -28,7 +28,7 @@ describe("paragarph >", function()
         end)
         it("Bold text with newline inside", function()
             local text = "*Bold\ntext*"
-            eq(p:match(text), t.para_seg(t.bold { t.str "Bold", t.line_break(), t.str "text" }))
+            eq(p:match(text), t.para_seg(t.bold { t.str "Bold", t.soft_break(), t.str "text" }))
         end)
         it("Bold and italic text", function()
             local text = "*/Bold italic/*"

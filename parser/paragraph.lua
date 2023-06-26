@@ -33,12 +33,12 @@ local function attached_modifier(punc_char, verbatim)
         wordchar ^ 1 / token.str,
         escape_sequence + (#-modi_end * punctuation) / token.punc,
         whitespace / token.space,
-        non_repeat_eol / token.line_break,
+        non_repeat_eol / token.soft_break,
     } ^ 1)
     local free_inner_capture = Ct(choice {
         (wordchar + (#-free_modi_end * punctuation)) ^ 1 / token.str,
         whitespace / token.space,
-        non_repeat_eol / token.line_break,
+        non_repeat_eol / token.soft_break,
     } ^ 1)
     if verbatim then
         free_inner_capture = C(choice {
