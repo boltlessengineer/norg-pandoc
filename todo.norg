@@ -3,10 +3,10 @@
   -- (_) change test tool to something else (*busted*'s messages are hard to read)
   -- ( ) add more test cases (copy from tree-sitter's)
   - (x) remove pandoc dependency
-       use special `token(id, patt)` function to replace all `/ pandoc.Whatever`
-       this function will be different if global `as_pandoc` option.
-       if `as_pandoc == false`, `token` will be a table containing `id` and captured values.
-       it is useful for debuging.
+        use special `token(id, patt)` function to replace all `/ pandoc.Whatever`
+        this function will be different if global `as_pandoc` option.
+        if `as_pandoc == false`, `token` will be a table containing `id` and captured values.
+        it is useful for debuging.
 * ( ) implement custom pandoc reader
 ** (?) Layer 1
    - (x) Attached Modifiers
@@ -21,9 +21,9 @@
    -- (x) NullModifier
    -- (x) InlineMath
    -- (?) Variable
-        can this really contain newline..?
+          can this really contain newline..?
    - (?) Links (only URL type)
-       how should we treat newline charactors in link destinations?
+         how should we treat newline charactors in link destinations?
    - (x) Escape Char
 ** ( ) Layer 2
    - (x) Nestable Detached Modifiers
@@ -32,31 +32,34 @@
    -- (?) attributes
           should this be in Layer 2?
    - (x) Headings
-   - ( ) Verbatim Ranged Tags
+   - (=) Verbatim Ranged Tags
    -- (x) `@code`
-   -- (_) `@document.meta`
-         this would be done via standard library in future
+   -- (=) `@document.meta`
+          this would be done via standard library in future
    - ( ) Delimiting Modifiers (like horizontal rules)
-   - ( ) Links (minus *timestamps*, *wikilinks*, *extendable links(=)*, *anchors*)
-   -- ( ) to File Location
+   - (-) Links (minus *timestamps*, *wikilinks*, *extendable links(=)*, *anchors*)
+   -- ( ) to File Location (`{:path/to/file:}`)
    -- (?) to Line Number
-         see: {https://github.com/nvim-neorg/norg-specs/issues/22}[#22]
+          see: {https://github.com/nvim-neorg/norg-specs/issues/22}[#22]
    -- (-) to Detached Modifier
+   --- (x) to *Structural Detached Modifiers* (= *headings*)
+   --- (=) to *Range-able Detached Modifiers* (= *definitions*, *footnotes*)
+           implement actual range-able detached modifiers in Layer 3 first
 ** ( ) Layer 3
    - ( ) Links (*timestamps*, *wikilinks*)
    - ( ) Inline Link Targets
    - ( ) Carryover Tags
    - ( ) Detached Modifier Extensions
    - ( ) Detached Modifier Suffix
-   - ( ) Range-able Detached Modifiers (minus *table cells*)
+   - (-) Range-able Detached Modifiers (minus *table cells*)
    - ( ) Link Modifier
 ** ( ) Layer 4
    - ( ) standard ranged tags (`\|comment`, etc.)
    - (?) table cells
    - (x) Free-form attached modifiers
    - ( ) ::
-        Intersecting Modifiers
-        This would enable code like:
+         Intersecting Modifiers
+         This would enable code like:
 @code norg
 $ Term : definition
 @end

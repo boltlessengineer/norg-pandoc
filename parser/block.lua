@@ -61,18 +61,12 @@ M.quote = quote_item(1) / token.quote
 
 local horizontal_rule = P "_" ^ 3 / token.horizontal_rule
 
-local function make_heading_id(str)
-    local replace_space = lpeg.S " \t\r\n" / "-"
-    local p = lpeg.Cs((punctuation / "" + replace_space + lpeg.P(1)) ^ 1)
-    return p:match(str)
-end
-
 M.heading = P(true)
     * (P "*" ^ 1 / string.len)
     * whitespace ^ 1
     * C(V "ParaSeg")
     / function(lev, str, ...)
-        local id = make_heading_id(str)
+        local id = "h-" .. make_id_from_str(str)
         return lev, { ... }, id
     end
     / token.heading

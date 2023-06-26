@@ -32,6 +32,12 @@ function _G.print_cap(...)
     return ...
 end
 
+function _G.make_id_from_str(str)
+    local replace_space = lpeg.S " \t\r\n" / "-"
+    local p = lpeg.Cs((punctuation / "" + replace_space + lpeg.P(1)) ^ 1)
+    return p:match(str)
+end
+
 _G.whitespace = S " \t"
 _G.line_ending = P "\r" ^ -1 * P "\n"
 _G.line_ending_ch = S "\r\n"

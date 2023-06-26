@@ -79,6 +79,19 @@ M.link = link_dest
     * link_desc ^ -1
     / function(dest, desc)
         local text = desc or dest
+        -- TODO: how can we handle magic char(#)?
+        local heading = (P "*" ^ 1 * whitespace ^ 1 / "h-") * (C(P(1) ^ 1) / make_id_from_str)
+        -- TODO: implement this
+        local file_location = P(true)
+        local p = Cs(choice {
+            file_location * choice {
+                heading,
+                -- definitions,
+                -- footnotes,
+            },
+            P(1) ^ 1,
+        })
+        dest = p:match(dest)
         return token.link(text, dest)
     end
 -- TODO: implement anchor
