@@ -1,7 +1,9 @@
 # norg-pandoc
 
-Custom pandoc reader for Norg format. It will be able to transfrom .norg
-files to the [pandoc](https://github.com/jgm/pandoc) AST.
+Custom pandoc reader for [Norg
+format](https://github.com/nvim-neorg/norg-specs). It will be able to
+transfrom .norg files to the [pandoc](https://github.com/jgm/pandoc)
+AST.
 
 ## why?
 
