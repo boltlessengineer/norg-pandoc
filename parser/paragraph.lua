@@ -84,6 +84,7 @@ M.link = link_dest
 -- TODO: implement anchor
 M.anchor = link_desc * (link_dest + link_desc) ^ -1
 
+-- re-check preceding whitespaces for nested blocks
 M.paragraph_segment = (
     whitespace ^ 0
     * choice {
@@ -114,10 +115,10 @@ local function print_passed(...)
 end
 
 local soft_break = line_ending / token.soft_break
--- FIX: don't try to parse whole cases... this might cause performace issue
 local paragraph_terminate = choice {
     (whitespace ^ 0 * line_ending),
-    V "detached_modifier",
+    -- detached modifier starts
+    (whitespace ^ 0 * S "*-~>%" ^ 1 * whitespace ^ 1),
     -- V "delimiting_modifier",
     -- V "ranged_tag",
     -- V "strong_carryover_tag"

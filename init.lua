@@ -6,10 +6,14 @@ local paragraph = require "parser.paragraph"
 
 _G.grammar = {
     "Doc",
-    Doc = Ct((V "Block" + (whitespace + line_ending)) ^ 0) / token.pandoc,
+    Doc = Ct(choice {
+        (whitespace + line_ending),
+        V "Block",
+    } ^ 0) / token.pandoc,
     Block = block.block,
     Heading = block.heading,
     list = block.list,
+    quote = block.quote,
     UnorderedList = block.unordered_list,
     OrderedList = block.ordered_list,
     detached_modifier = block.detached_modifier,
@@ -25,7 +29,8 @@ G = P(grammar)
 function Reader(input, _reader_options)
     print "============[INPUT:]============"
     print(input)
+    print "============[PARSE:]============"
     local match = lpeg.match(G, tostring(input))
-    print "============[RESULT]============"
+    print "============RESULT============"
     return match
 end

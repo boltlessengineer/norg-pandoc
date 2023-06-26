@@ -26,10 +26,11 @@
 				how should we treat newline charactors in link destinations?
 	-- (x) Escape Char
 	- ( ) Layer 2
-	-- ( ) Nestable Detached Modifiers
+	-- (x) Nestable Detached Modifiers
 	--- (x) ordered / unordered lists
-	--- ( ) quotes
-	--- ( ) attributes
+	--- (x) quotes
+	--- (?) attributes
+					should this be in Layer 2?
 	-- (x) Headings
 	-- ( ) Links (minus *timestamps*, *wikilinks*, *extendable links(=)*, *anchors*)
 	-- ( ) Verbatim Ranged Tags
