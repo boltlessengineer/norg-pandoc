@@ -81,8 +81,7 @@ do
         * C((1 - _end) ^ 1)
         * _end
         / function(name, param, content)
-            print(name, param)
-            local class = ""
+            local class = name .. " "
             if #param > 0 then
                 class = table.concat(param, " ")
             end
