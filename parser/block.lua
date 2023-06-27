@@ -64,7 +64,9 @@ local horizontal_rule = P "_" ^ 3 / token.horizontal_rule
 M.heading = P(true)
     * (P "*" ^ 1 / string.len)
     * whitespace ^ 1
-    * C(V "ParaSeg")
+    -- NOTE: parser one more time here to get actual captured table
+    * C(V "ParaSeg" / function(...) return ... end)
+    -- TODO: handle this in token.heading, not here.
     / function(lev, str, ...)
         local id = "h-" .. make_id_from_str(str)
         return lev, { ... }, id

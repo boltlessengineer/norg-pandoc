@@ -19,16 +19,11 @@ local function pandoc_fb(id, fallback)
     else
         if id == "Space" or id == "SoftBreak" or id == "LineBreak" then
             return function()
-                return { id }
-            end
-        end
-        if id == "List" then
-            return function(...)
-                return { ... }
+                return { _t = id }
             end
         end
         return function(...)
-            return { id, ... }
+            return { _t = id, ... }
         end
     end
 end
@@ -45,7 +40,9 @@ local M = {
     ordered_list = pandoc_fb "OrderedList",
     quote = pandoc_fb "BlockQuote",
     _plain = pandoc_fb "Plain",
-    _list = pandoc_fb "List",
+    ---this turns Lua table to pandoc AST list
+    ---when outside of pandoc,
+    _list = pandoc and pandoc.List or empty_fn,
     pandoc = pandoc_fb "Pandoc",
     heading = pandoc_fb "Header",
     bold = pandoc_fb "Strong",

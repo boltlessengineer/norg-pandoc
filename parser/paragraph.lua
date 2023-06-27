@@ -116,6 +116,8 @@ local paragraph_terminate = choice {
     -- V "ranged_tag",
     -- V "strong_carryover_tag"
 }
-M.paragraph = Ct(V "ParaSeg" * (soft_break * (V "ParaSeg" - paragraph_terminate)) ^ 0) / token.para
+M.paragraph = Ct(
+    V "ParaSeg" * (soft_break * (V "ParaSeg" - paragraph_terminate)) ^ 0
+) / token._list / token.para
 
 return M
