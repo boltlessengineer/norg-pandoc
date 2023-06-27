@@ -98,18 +98,14 @@ M.link = link_dest
 M.anchor = link_desc * (link_dest + link_desc) ^ -1
 
 -- re-check preceding whitespaces for nested blocks
-M.paragraph_segment = (
-    whitespace ^ 0
-    * choice {
-            V "Styled",
-            V "Link",
-            wordchar ^ 1 / token.str,
-            escape_sequence / token.punc,
-            punctuation / token.punc,
-            whitespace / token.space,
-        }
-        ^ 1
-) / token.para_seg
+M.paragraph_segment = Ct(whitespace ^ 0 * choice {
+    V "Styled",
+    V "Link",
+    wordchar ^ 1 / token.str,
+    escape_sequence / token.punc,
+    punctuation / token.punc,
+    whitespace / token.space,
+} ^ 1) / token.para_seg
 
 local soft_break = line_ending / token.soft_break
 local paragraph_terminate = choice {

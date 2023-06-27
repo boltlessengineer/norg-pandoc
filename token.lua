@@ -38,15 +38,13 @@ local M = {
     punc = pandoc_fb "Str",
     para = pandoc_fb "Para",
     space = pandoc_fb "Space",
-    ---empty function. you should use this wit `lpeg.Ct()`
-    para_seg = pandoc_fb "_ParaSeg",
+    para_seg = pandoc_fb "List",
     soft_break = pandoc_fb "SoftBreak",
     line_break = pandoc_fb "LineBreak",
     bullet_list = pandoc_fb "BulletList",
     ordered_list = pandoc_fb "OrderedList",
     quote = pandoc_fb "BlockQuote",
     _plain = pandoc_fb "Plain",
-    -- TODO: use this for para_seg
     _list = pandoc_fb "List",
     pandoc = pandoc_fb "Pandoc",
     heading = pandoc_fb "Header",

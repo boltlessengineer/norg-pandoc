@@ -71,6 +71,17 @@ M.heading = P(true)
     end
     / token.heading
 
+-- TODO: range-able detached modifiers
+
+M.detached_modifier = choice {
+    -- structural
+    V "Heading",
+    -- nestable
+    V "list",
+    V "quote",
+    -- TODO: range-able
+}
+
 local standard_ranged_tag_prefix = P "|"
 local verbatim_ranged_tag_prefix = P "@"
 local macro_ranged_tag_prefix = P "="
@@ -96,12 +107,6 @@ do
             return token.code_block(content, { class = class })
         end
 end
-
-M.detached_modifier = choice {
-    V "Heading",
-    V "list",
-    V "quote",
-}
 
 M.block = choice {
     V "detached_modifier",
