@@ -80,7 +80,8 @@ M.link = link_dest
     / function(dest, desc)
         local text = desc or dest
         -- TODO: how can we handle magic char(#)?
-        local heading = (P "*" ^ 1 * whitespace ^ 1 / "h-") * (C(P(1) ^ 1) / make_id_from_str)
+        local heading = (P "*" ^ 1 * whitespace ^ 1 / "h-")
+            * (C(P(1) ^ 1) / make_id_from_str)
         -- TODO: implement this
         local file_location = P(true)
         local p = Cs(choice {

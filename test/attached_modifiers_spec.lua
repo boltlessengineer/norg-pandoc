@@ -5,30 +5,57 @@ assert:add_formatter(
 )
 
 require "init"
+grammar[1] = "ParaSeg"
+local p = P(grammar)
+local t = require "token"
 
 describe("Attached Modifiers >", function()
-    grammar[1] = "ParaSeg"
-    local p = P(grammar)
-    local t = require "token"
     it("Bold words", function()
         local text = "A *bold* word"
-        eq(p:match(text), t.para_seg { t.str "A", t.space(), t.bold { t.str "bold" }, t.space(), t.str "word" })
+        eq(
+            p:match(text),
+            t.para_seg {
+                t.str "A",
+                t.space(),
+                t.bold { t.str "bold" },
+                t.space(),
+                t.str "word",
+            }
+        )
     end)
     it("Bold text", function()
         local text = "*Bold text*"
-        eq(p:match(text), t.para_seg { t.bold { t.str "Bold", t.space(), t.str "text" } })
+        eq(
+            p:match(text),
+            t.para_seg { t.bold { t.str "Bold", t.space(), t.str "text" } }
+        )
     end)
     it("Bold text with comma and period", function()
         local text = ".*Bold text*,"
-        eq(p:match(text), t.para_seg { t.str ".", t.bold { t.str "Bold", t.space(), t.str "text" }, t.str "," })
+        eq(
+            p:match(text),
+            t.para_seg {
+                t.str ".",
+                t.bold { t.str "Bold", t.space(), t.str "text" },
+                t.str ",",
+            }
+        )
     end)
     it("Bold text with newline inside", function()
         local text = "*Bold\ntext*"
-        eq(p:match(text), t.para_seg { t.bold { t.str "Bold", t.soft_break(), t.str "text" } })
+        eq(
+            p:match(text),
+            t.para_seg { t.bold { t.str "Bold", t.soft_break(), t.str "text" } }
+        )
     end)
     it("Bold and italic text", function()
         local text = "*/Bold italic/*"
-        eq(p:match(text), t.para_seg { t.bold { t.italic { t.str "Bold", t.space(), t.str "italic" } } })
+        eq(
+            p:match(text),
+            t.para_seg {
+                t.bold { t.italic { t.str "Bold", t.space(), t.str "italic" } },
+            }
+        )
     end)
     it("Bold and partly italic text", function()
         local text = "*/Bold italic/ only bold*"

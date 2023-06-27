@@ -1,6 +1,4 @@
-local function empty_fn(...)
-    return ...
-end
+local function empty_fn(...) return ... end
 
 ---returns token function. use pandoc if possible
 ---@param id string
@@ -10,21 +8,15 @@ local function pandoc_fb(id, fallback)
         if pandoc[id] and not fallback then
             return pandoc[id]
         elseif fallback then
-            return function(...)
-                return fallback(pandoc[id], ...)
-            end
+            return function(...) return fallback(pandoc[id], ...) end
         else
             return empty_fn
         end
     else
         if id == "Space" or id == "SoftBreak" or id == "LineBreak" then
-            return function()
-                return { _t = id }
-            end
+            return function() return { _t = id } end
         end
-        return function(...)
-            return { _t = id, ... }
-        end
+        return function(...) return { _t = id, ... } end
     end
 end
 
@@ -49,18 +41,18 @@ local M = {
     italic = pandoc_fb "Emph",
     underline = pandoc_fb "Underline",
     strikethrough = pandoc_fb "Strikeout",
-    spoiler = pandoc_fb("Span", function(span, inline)
-        return span(inline, { class = "spoiler" })
-    end),
+    spoiler = pandoc_fb(
+        "Span",
+        function(span, inline) return span(inline, { class = "spoiler" }) end
+    ),
     superscript = pandoc_fb "Superscript",
     subscript = pandoc_fb "Subscript",
     inline_code = pandoc_fb "Code",
-    null_modifier = function()
-        return nil
-    end,
-    inline_math = pandoc_fb("Math", function(math, text)
-        return math("InlineMath", text)
-    end),
+    null_modifier = function() return nil end,
+    inline_math = pandoc_fb(
+        "Math",
+        function(math, text) return math("InlineMath", text) end
+    ),
     -- TODO: add custom class (not id, there can be many) for it
     variable = pandoc_fb "Str",
     horizontal_rule = pandoc_fb "HorizontalRule",

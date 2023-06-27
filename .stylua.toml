@@ -1,4 +1,5 @@
-column_width = 120
+column_width = 80
 call_parentheses = "None"
 indent_type = "Spaces"
 indent_width = 4
+collapse_simple_statement = "FunctionOnly"

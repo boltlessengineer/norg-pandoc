@@ -33,15 +33,13 @@ local function pretty_table_inline(tb)
         res = res .. lead .. v_str
     end
     if tb._t then
-        return table.concat({ tb._t, res ~= "" and res or nil })
+        return table.concat { tb._t, res ~= "" and res or nil }
     else
         return "[ " .. res .. " ]"
     end
 end
 
-local function indent_str(indent)
-    return string.rep("  ", indent)
-end
+local function indent_str(indent) return string.rep("  ", indent) end
 
 -- yes, this is quite spaghetti code. but it is working :)
 function M.pretty_table(tb, indent)
