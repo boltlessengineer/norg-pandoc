@@ -103,7 +103,7 @@ do
         for i, item in ipairs(defs) do
             local raw, txt, def = table.unpack(item)
             local title = "d-" .. make_id_from_str(raw)
-            list[i] = { pandoc.Span(txt, { id = title }), def }
+            list[i] = { token.definition_text(txt, { id = title }), def }
         end
         return token.definition_list(list)
     end

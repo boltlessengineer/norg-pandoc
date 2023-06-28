@@ -2,6 +2,10 @@ local function eq(pass, expect) return assert.are.same(expect, pass) end
 assert:add_formatter(
     function(val) return require("src.debug_print").pretty_table(val) end
 )
+if _G["vim"] then
+    ---@diagnostic disable-next-line: deprecated
+    table.unpack = unpack
+end
 
 local t = require "token"
 -- we don't care about paragraphs in this test
@@ -39,5 +43,25 @@ I'm not heading
     end)
     describe("Range-able (definitions, footnotes) >", function()
         -- TODO: add some test when Link parsing is done
+        it("Definition", function()
+            local text = [[
+$ some word
+explain for some word
+]]
+            eq(
+                p:match(text),
+                t.pandoc {
+                    t.definition_list {
+                        {
+                            t.definition_text(
+                                t.para_seg(),
+                                { id = "d-some-word" }
+                            ),
+                            t.para { t.para_seg() },
+                        },
+                    },
+                }
+            )
+        end)
     end)
 end)

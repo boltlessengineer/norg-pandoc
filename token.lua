@@ -30,6 +30,7 @@ local M = {
     horizontal_rule = "HorizontalRule",
     link = "Link",
     code_block = "CodeBlock",
+    definition_text = "Span",
     definition_list = "DefinitionList",
 }
 

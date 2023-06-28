@@ -79,8 +79,16 @@ M.link = link_dest
     * link_desc ^ -1
     / function(dest, desc)
         local text = desc or dest
+        local make_id_from_str = function(str)
+            text = desc or str
+            return _G.make_id_from_str(str)
+        end
         -- TODO: how can we handle magic char(#)?
         local heading = (P "*" ^ 1 * whitespace ^ 1 / "h-")
+            * (C(P(1) ^ 1) / make_id_from_str)
+        local definitions = (P "$" * whitespace ^ 1 / "d-")
+            * (C(P(1) ^ 1) / make_id_from_str)
+        local footnotes = (P "^" * whitespace ^ 1 / "f-")
             * (C(P(1) ^ 1) / make_id_from_str)
         -- TODO: implement this
         local file_location = P(true)
@@ -88,8 +96,8 @@ M.link = link_dest
         local p = Cs(choice {
             file_location * choice {
                 heading,
-                -- definitions,
-                -- footnotes,
+                definitions,
+                footnotes,
             },
             P(1) ^ 1,
         })
