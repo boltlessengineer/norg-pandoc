@@ -9,9 +9,11 @@
 
    Many of Neorg's features are already written in Lua, and pandoc has built-in support for Lua custom parsers. This project is started to provide full pandoc support as soon as possible.
 
+   Although the main goal of this project is to have pandoc implementation for Norg, it is also designed to use as general Lua parser for Norg :)
+
 ** Parser Implementation State
 
-   You can see detailed current state in {./blob/main/todo.norg}[todo.norg]
+   You can see detailed current state in {./todo.norg}[todo.norg]
 
 ** Contributing
 
