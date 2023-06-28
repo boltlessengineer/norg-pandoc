@@ -66,10 +66,9 @@ M.heading = P(true)
     * whitespace ^ 1
     -- NOTE: parser one more time here to get actual captured table
     * C(V "ParaSeg" / function(...) return ... end)
-    -- TODO: handle this in token.heading, not here.
-    / function(lev, str, ...)
+    / function(lev, str, content)
         local id = "h-" .. make_id_from_str(str)
-        return lev, { ... }, id
+        return lev, content, id
     end
     / token.heading
 

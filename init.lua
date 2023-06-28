@@ -32,6 +32,6 @@ function Reader(input, _reader_options)
     print(input)
     print "============[PARSE:]============"
     local match = lpeg.match(G, tostring(input))
-    print "============RESULT============"
+    print "============[RESULT]============"
     return match
 end

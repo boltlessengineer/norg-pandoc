@@ -35,9 +35,9 @@ describe("Attached Modifiers >", function()
         eq(
             p:match(text),
             t.para_seg {
-                t.str ".",
+                t.punc ".",
                 t.bold { t.str "Bold", t.space(), t.str "text" },
-                t.str ",",
+                t.punc ",",
             }
         )
     end)

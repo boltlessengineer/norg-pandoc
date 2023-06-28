@@ -1,63 +1,59 @@
-local function empty_fn(...) return ... end
+pandoc = pandoc or {}
 
----returns token function. use pandoc if possible
----@param id string
----@param fallback? fun(pandoc_fn:function, ...): any
-local function pandoc_fb(id, fallback)
-    if pandoc then
-        if pandoc[id] and not fallback then
-            return pandoc[id]
-        elseif fallback then
-            return function(...) return fallback(pandoc[id], ...) end
-        else
-            return empty_fn
-        end
-    else
-        if id == "Space" or id == "SoftBreak" or id == "LineBreak" then
-            return function() return { _t = id } end
-        end
-        return function(...) return { _t = id, ... } end
-    end
+---@type table<string, string|function>
+local M = {
+    space = "Space",
+    soft_break = "SoftBreak",
+    line_break = "LineBreak",
+    str = "Str",
+    punc = "Str",
+    para = function(content) return pandoc.Para(flatten_table(content)) end,
+    para_seg = function(...) return ... end,
+    bullet_list = "BulletList",
+    ordered_list = "OrderedList",
+    quote = "BlockQuote",
+    pandoc = "Pandoc",
+    heading = "Header",
+    bold = "Strong",
+    italic = "Emph",
+    underline = "Underline",
+    strikethrough = "Strikeout",
+    spoiler = function(inline)
+        return pandoc.Span(inline, { class = "spoiler" })
+    end,
+    superscript = "Superscript",
+    subscript = "Subscript",
+    inline_code = "Code",
+    null_modifier = function() return nil end,
+    inline_math = function(text) return pandoc.Math("InlineMath", text) end,
+    variable = function(inline)
+        return pandoc.Span(inline, { class = "variable" })
+    end,
+    horizontal_rule = "HorizontalRule",
+    link = "Link",
+    code_block = "CodeBlock",
+}
+
+local function t_with_val(id)
+    return function(...) return { _t = id, ... } end
+end
+local function t_none_val(id)
+    return function() return { _t = id } end
 end
 
-local M = {
-    str = pandoc_fb "Str",
-    punc = pandoc_fb "Str",
-    para = pandoc_fb "Para",
-    space = pandoc_fb "Space",
-    para_seg = pandoc_fb "List",
-    soft_break = pandoc_fb "SoftBreak",
-    line_break = pandoc_fb "LineBreak",
-    bullet_list = pandoc_fb "BulletList",
-    ordered_list = pandoc_fb "OrderedList",
-    quote = pandoc_fb "BlockQuote",
-    _plain = pandoc_fb "Plain",
-    ---this turns Lua table to pandoc AST list
-    ---when outside of pandoc,
-    _list = pandoc and pandoc.List or empty_fn,
-    pandoc = pandoc_fb "Pandoc",
-    heading = pandoc_fb "Header",
-    bold = pandoc_fb "Strong",
-    italic = pandoc_fb "Emph",
-    underline = pandoc_fb "Underline",
-    strikethrough = pandoc_fb "Strikeout",
-    spoiler = pandoc_fb(
-        "Span",
-        function(span, inline) return span(inline, { class = "spoiler" }) end
-    ),
-    superscript = pandoc_fb "Superscript",
-    subscript = pandoc_fb "Subscript",
-    inline_code = pandoc_fb "Code",
-    null_modifier = function() return nil end,
-    inline_math = pandoc_fb(
-        "Math",
-        function(math, text) return math("InlineMath", text) end
-    ),
-    -- TODO: add custom class (not id, there can be many) for it
-    variable = pandoc_fb "Str",
-    horizontal_rule = pandoc_fb "HorizontalRule",
-    link = pandoc_fb "Link",
-    code_block = pandoc_fb "CodeBlock",
-}
+-- build token
+for key, value in pairs(M) do
+    if pandoc.Pandoc then
+        if type(value) == "string" then
+            M[key] = pandoc[value]
+        end
+    else
+        if key == "space" or key == "soft_break" or key == "line_break" then
+            M[key] = t_none_val(key)
+        else
+            M[key] = t_with_val(key)
+        end
+    end
+end
 
 return M

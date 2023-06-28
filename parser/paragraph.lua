@@ -119,6 +119,6 @@ local paragraph_terminate = choice {
 }
 M.paragraph = Ct(
     V "ParaSeg" * (soft_break * (V "ParaSeg" - paragraph_terminate)) ^ 0
-) / token._list / token.para
+) / token.para
 
 return M
