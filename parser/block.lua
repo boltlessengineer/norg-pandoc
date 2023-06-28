@@ -64,15 +64,66 @@ local horizontal_rule = P "_" ^ 3 / token.horizontal_rule
 M.heading = P(true)
     * (P "*" ^ 1 / string.len)
     * whitespace ^ 1
-    -- NOTE: parser one more time here to get actual captured table
-    * C(V "ParaSeg" / function(...) return ... end)
+    * C(V "ParaSeg")
     / function(lev, str, content)
         local id = "h-" .. make_id_from_str(str)
         return lev, content, id
     end
     / token.heading
 
--- TODO: range-able detached modifiers
+do
+    local function rangeable_single_capture(prefix_ch)
+        return P(prefix_ch)
+            * whitespace ^ 1
+            * C(V "ParaSeg")
+            * (line_ending * whitespace ^ 0) ^ 1
+            * V "Para"
+    end
+
+    local function rangeable_ranged_capture(prefix_ch)
+        local modifier = P(prefix_ch .. prefix_ch)
+        return modifier
+            * whitespace ^ 1
+            * C(V "ParaSeg")
+            * Ct(choice {
+                (whitespace + line_ending),
+                (V "Block" - modifier),
+            } ^ 0)
+            * whitespace ^ 0
+            * modifier
+            * whitespace ^ 0
+            * line_ending
+    end
+
+    M.definition_list = Ct(Ct(choice {
+        rangeable_single_capture "$",
+        rangeable_ranged_capture "$",
+    } * (whitespace + line_ending) ^ 0) ^ 1) / function(defs)
+        local list = {}
+        for i, item in ipairs(defs) do
+            local raw, txt, def = table.unpack(item)
+            local title = "d-" .. make_id_from_str(raw)
+            list[i] = { pandoc.Span(txt, { id = title }), def }
+        end
+        return token.definition_list(list)
+    end
+
+    M.footnotes = {}
+
+    M.footnote = Cmt(
+        choice {
+            rangeable_single_capture "^",
+            rangeable_ranged_capture "^",
+        },
+        function(_, _, raw, _txt, def)
+            local title = "f-" .. make_id_from_str(raw)
+            print(title)
+            print(inspect(def))
+            M.footnotes[title] = def
+            return true
+        end
+    )
+end
 
 M.detached_modifier = choice {
     -- structural
@@ -81,6 +132,8 @@ M.detached_modifier = choice {
     V "list",
     V "quote",
     -- TODO: range-able
+    V "definition",
+    V "footnote",
 }
 
 local standard_ranged_tag_prefix = P "|"

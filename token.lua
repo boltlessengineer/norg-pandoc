@@ -1,5 +1,3 @@
-pandoc = pandoc or {}
-
 ---@type table<string, string|function>
 local M = {
     space = "Space",
@@ -32,6 +30,7 @@ local M = {
     horizontal_rule = "HorizontalRule",
     link = "Link",
     code_block = "CodeBlock",
+    definition_list = "DefinitionList",
 }
 
 local function t_with_val(id)
@@ -43,7 +42,7 @@ end
 
 -- build token
 for key, value in pairs(M) do
-    if pandoc.Pandoc then
+    if pandoc then
         if type(value) == "string" then
             M[key] = pandoc[value]
         end

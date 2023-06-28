@@ -3,7 +3,7 @@ _G.lpeg = require "lpeg"
 P, S, R, Cf, Cc, Ct, V, Cs, Cg, Cb, B, C, Cmt, Cp =
     lpeg.P, lpeg.S, lpeg.R, lpeg.Cf, lpeg.Cc, lpeg.Ct, lpeg.V, lpeg.Cs, lpeg.Cg, lpeg.Cb, lpeg.B, lpeg.C, lpeg.Cmt, lpeg.Cp
 
-local inspect = require "src.inspect"
+_G.inspect = require "src.inspect"
 
 function _G.choice(patts)
     local patt = patts[1]

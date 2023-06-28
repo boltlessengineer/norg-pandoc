@@ -84,6 +84,7 @@ M.link = link_dest
             * (C(P(1) ^ 1) / make_id_from_str)
         -- TODO: implement this
         local file_location = P(true)
+        -- NOTE: footnote should be captured as pandoc.Note
         local p = Cs(choice {
             file_location * choice {
                 heading,
