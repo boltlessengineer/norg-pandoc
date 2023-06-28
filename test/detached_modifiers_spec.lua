@@ -10,7 +10,7 @@ require "init"
 local p = P(grammar)
 
 describe("Detached Modifiers >", function()
-    describe("Headings", function()
+    describe("Structural (headings) >", function()
         it("Level 1 heading", function()
             local text = "* Heading Title!"
             eq(
@@ -33,5 +33,11 @@ I'm not heading
                 }
             )
         end)
+    end)
+    describe("Nestable (lists, quotes) >", function()
+        -- NOTE: tests on test/lists_spec.lua
+    end)
+    describe("Range-able (definitions, footnotes) >", function()
+        -- TODO: add some test when Link parsing is done
     end)
 end)

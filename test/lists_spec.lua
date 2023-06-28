@@ -1,19 +1,11 @@
 local function eq(pass, expect) return assert.are.same(expect, pass) end
-assert:set_parameter("TableFormatLevel", 12)
-if _G["vim"] then
-    assert:add_formatter(_G["vim"].inspect)
-end
-
 assert:add_formatter(
     function(val) return require("src.debug_print").pretty_table(val) end
 )
-if _G["vim"] then
-    assert:add_formatter(_G["vim"].inspect)
-end
 
 local t = require "token"
 -- we don't care about paragraphs in this test
-t.para = function() return { _t = "Para" } end
+t.para = function() return { _t = "para" } end
 require "init"
 local p = P(grammar)
 
