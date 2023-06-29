@@ -7,6 +7,7 @@
         this function will be different if global `as_pandoc` option.
         if `as_pandoc == false`, `token` will be a table containing `id` and captured values.
         it is useful for debuging.
+  - ( ) we can parse all line-ending with `whitespace ^ 0 * line_ending * whitespace ^ 0`
 * ( ) implement custom pandoc reader
 ** (?) Layer 1
    - (x) Attached Modifiers
@@ -37,13 +38,18 @@
           this would be done via standard library in future
    - ( ) Delimiting Modifiers (like horizontal rules)
    - (-) Links (minus *timestamps*, *wikilinks*, *extendable links(=)*, *anchors*)
-   -- ( ) to File Location (`{:path/to/file:}`)
+   -- (-) to File Location (`{:path/to/file:}`)
    -- (?) to Line Number
           see: {https://github.com/nvim-neorg/norg-specs/issues/22}[norg-specs#22]
-   -- (-) to Detached Modifier
+   -- (x) to Detached Modifier
    --- (x) to *Structural Detached Modifiers* (= *headings*)
    --- (-) to *Range-able Detached Modifiers* (= *definitions*, *footnotes*)
-           implement actual range-able detached modifiers in Layer 3 first
+   ---- (x) definitions
+   ---- (-) footnotes
+   -- ( ) to Custom Detached Modifier
+   --- ( ) magic (`#`)
+   --- (x) file (`/`)
+   - ( ) Link Modifier (the `:` thing)
 ** ( ) Layer 3
    - ( ) Links (*timestamps*, *wikilinks*)
    - ( ) Inline Link Targets
@@ -52,7 +58,8 @@
    - ( ) Detached Modifier Suffix
    - (x) Range-able Detached Modifiers (minus *table cells*)
    -- (x) Definition
-   -- (x) Footnotes
+   -- (-) Footnotes
+          Create footnote elements at the end of the document
    - ( ) Link Modifier
 ** ( ) Layer 4
    - ( ) standard ranged tags (`\|comment`, etc.)

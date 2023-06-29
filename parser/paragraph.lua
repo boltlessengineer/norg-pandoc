@@ -3,21 +3,21 @@ local token = require "token"
 
 local M = {}
 
-local state = {}
+M.state = {}
 
 local function attached_modifier(punc_char, verbatim)
     local punc = P(punc_char)
     local non_whitespace_char = wordchar + punctuation
 
     local pre = Cmt(P(true), function()
-        if state[punc_char] then
+        if M.state[punc_char] then
             return false
         end
-        state[punc_char] = true
+        M.state[punc_char] = true
         return true
     end)
     local post = Cmt(P(true), function()
-        state[punc_char] = false
+        M.state[punc_char] = false
         return true
     end)
 
@@ -26,14 +26,16 @@ local function attached_modifier(punc_char, verbatim)
     local free_modi_start = (#-B(wordchar) * punc * P "|")
     local free_modi_end = P "|" * punc * -wordchar
 
-    local non_repeat_eol = (line_ending - line_ending ^ 2)
+    local non_repeat_eol = whitespace ^ 0
+        * (line_ending - line_ending ^ 2)
+        * whitespace ^ 0
     local inner_capture = Ct(choice {
         (#(punctuation - punc) * (V "Styled")),
         V "Link",
         wordchar ^ 1 / token.str,
         escape_sequence + (#-modi_end * punctuation) / token.punc,
-        whitespace / token.space,
         non_repeat_eol / token.soft_break,
+        whitespace / token.space,
     } ^ 1)
     local free_inner_capture = Ct(choice {
         (wordchar + (#-free_modi_end * punctuation)) ^ 1 / token.str,
@@ -43,13 +45,13 @@ local function attached_modifier(punc_char, verbatim)
     if verbatim then
         free_inner_capture = C(choice {
             (wordchar + (#-free_modi_end * punctuation)) ^ 1,
-            whitespace,
             non_repeat_eol,
+            whitespace,
         } ^ 1)
         inner_capture = C(choice {
             (wordchar + escape_sequence + (#-modi_end * punctuation)) ^ 1,
-            whitespace,
             non_repeat_eol,
+            whitespace,
         } ^ 1)
     end
     return choice {
@@ -72,38 +74,93 @@ M.styled = choice {
     attached_modifier("&", true) / token.variable,
 }
 
-local link_dest = P "{" * C((1 - (P "}" + line_ending)) ^ 0) * P "}"
-local link_desc = P "[" * C((1 - (P "]" + line_ending)) ^ 0) * P "]"
+local inline_without_link = choice {
+    V "Styled",
+    wordchar ^ 1 / token.str,
+    escape_sequence / token.punc,
+    punctuation / token.punc,
+    whitespace ^ 0 * line_ending * whitespace ^ 0 / token.soft_break,
+    whitespace ^ 1 / token.space,
+}
+
+local file_loc_pattern = P(true)
+    * (P ":" * #wordchar)
+    * ((wordchar + P "/") ^ 1)
+    * (B(wordchar) * P ":")
+local non_space = wordchar + punctuation
+local link_dest = P "{"
+    * C(file_loc_pattern ^ -1)
+    * #non_space
+    * C(Ct((inline_without_link - P "}") ^ 0))
+    * B(non_space)
+    * P "}"
+local link_desc = P "[" * #non_space * C((1 - P "]") ^ 0) * B(non_space) * P "]"
+
+-- hacky local __eq implement
+local function _eq(a, b)
+    local type_eq = a._t == b._t
+    local content_eq = a[1] == b[1]
+    return type_eq and content_eq
+end
+
+local function is_space_eol(t)
+    return _eq(t, token.space()) or _eq(t, token.soft_break())
+end
+
+local function slice_tbl(tbl)
+    local sliced = {}
+    local skipped = false
+    for i = 3, #tbl do
+        if skipped or not is_space_eol(tbl[i]) then
+            skipped = true
+            table.insert(sliced, tbl[i])
+        end
+    end
+    return sliced
+end
+
+local function remove_whitespace(str)
+    local p = Cs((S " \t\r\n" ^ 1 / "" + lpeg.P(1)) ^ 1)
+    return p:match(str)
+end
+
+local footnote_count = 0
 
 M.link = link_dest
     * link_desc ^ -1
-    / function(dest, desc)
-        local text = desc or dest
-        local make_id_from_str = function(str)
-            text = desc or str
-            return _G.make_id_from_str(str)
+    / function(file_loc, raw_dest, dest, desc)
+        print(">" .. file_loc .. "<")
+        print(">" .. raw_dest .. "<")
+        local target = raw_dest
+        local function has_prefix(prefix)
+            return _eq(dest[1], token.punc(prefix)) and is_space_eol(dest[2])
         end
         -- TODO: how can we handle magic char(#)?
-        local heading = (P "*" ^ 1 * whitespace ^ 1 / "h-")
-            * (C(P(1) ^ 1) / make_id_from_str)
-        local definitions = (P "$" * whitespace ^ 1 / "d-")
-            * (C(P(1) ^ 1) / make_id_from_str)
-        local footnotes = (P "^" * whitespace ^ 1 / "f-")
-            * (C(P(1) ^ 1) / make_id_from_str)
-        -- TODO: implement this
-        local file_location = P(true)
-        -- NOTE: footnote should be captured as pandoc.Note
-        local p = Cs(choice {
-            file_location * choice {
-                heading,
-                definitions,
-                footnotes,
-            },
-            P(1) ^ 1,
-        })
-        dest = p:match(dest)
-        return token.link(text, dest)
+        if has_prefix "*" then
+            dest = slice_tbl(dest)
+            target = "#h-" .. make_id_from_str(raw_dest:sub(3, #raw_dest))
+        elseif has_prefix "$" then
+            dest = slice_tbl(dest)
+            target = "#d-" .. make_id_from_str(raw_dest:sub(3, #raw_dest))
+        elseif has_prefix "^" then
+            footnote_count = footnote_count + 1
+            dest = slice_tbl(dest)
+            target = "#f-" .. make_id_from_str(raw_dest:sub(3, #raw_dest))
+            -- TODO: {^ 1} : traditional type footnotes
+            local note = require("parser.block").footnotes[dest]
+            desc = desc or dest
+            return token.footnote_link(desc, target)
+        elseif has_prefix "/" then
+            target = remove_whitespace(raw_dest:sub(3, #raw_dest))
+            dest = target
+        else
+            target = remove_whitespace(target)
+            dest = target
+        end
+        desc = desc or dest
+        return token.link(desc, target)
     end
+
 -- TODO: implement anchor
 M.anchor = link_desc * (link_dest + link_desc) ^ -1
 

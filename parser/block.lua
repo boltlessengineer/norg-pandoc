@@ -117,8 +117,6 @@ do
         },
         function(_, _, raw, _txt, def)
             local title = "f-" .. make_id_from_str(raw)
-            print(title)
-            print(inspect(def))
             M.footnotes[title] = def
             return true
         end

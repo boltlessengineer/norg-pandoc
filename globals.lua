@@ -46,8 +46,10 @@ function _G.flatten_table(tbl)
 end
 
 function _G.make_id_from_str(str)
-    local replace_space = lpeg.S " \t\r\n" / "-"
-    local p = lpeg.Cs((punctuation / "" + replace_space + lpeg.P(1)) ^ 1)
+    local replace_space = lpeg.S " \t\r\n" ^ 1 / "-"
+    local p = whitespace ^ 0
+        * Cs((punctuation / "" + replace_space + lpeg.P(1)) ^ 1)
+        * whitespace ^ 0
     return p:match(str)
 end
 

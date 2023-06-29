@@ -7,6 +7,7 @@ local M = {
     punc = "Str",
     para = function(content) return pandoc.Para(flatten_table(content)) end,
     para_seg = function(...) return ... end,
+    inlines = "Inlines",
     bullet_list = "BulletList",
     ordered_list = "OrderedList",
     quote = "BlockQuote",
@@ -32,6 +33,15 @@ local M = {
     code_block = "CodeBlock",
     definition_text = "Span",
     definition_list = "DefinitionList",
+    note = "Note",
+    footnote_link = function(text, target)
+        local state = require("parser.paragraph").state
+        if state["^"] or state[","] then
+            return pandoc.Link(text, target)
+        else
+            return pandoc.Superscript(pandoc.Link(text, target))
+        end
+    end,
 }
 
 local function t_with_val(id)
@@ -50,6 +60,8 @@ for key, value in pairs(M) do
     else
         if key == "space" or key == "soft_break" or key == "line_break" then
             M[key] = t_none_val(key)
+        elseif key == "inlines" then
+            M[key] = function(...) return ... end
         else
             M[key] = t_with_val(key)
         end

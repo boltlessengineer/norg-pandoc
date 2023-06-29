@@ -110,4 +110,20 @@ describe("Attached Modifiers >", function()
             }
         )
     end)
+    it("Ignore multiple whitespaces inside bold", function ()
+        local text = [[
+*bold   
+    text*
+        ]]
+        eq(
+            p:match(text),
+            t.para_seg {
+                t.bold {
+                    t.str "bold",
+                    t.soft_break(),
+                    t.str "text",
+                },
+            }
+        )
+    end)
 end)
