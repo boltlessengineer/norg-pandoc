@@ -33,10 +33,7 @@ describe("Links >", function()
         eq(
             p:match(text),
             t.para_seg {
-                t.link(
-                    { t.str "heading", t.space(), t.str "1" },
-                    "#h-heading-1"
-                ),
+                t.link({ t.str "heading", t.space(), t.str "1" }, "#heading-1"),
             }
         )
     end)
@@ -49,10 +46,7 @@ see {$ some word}.
             t.para_seg {
                 t.str "see",
                 t.space(),
-                t.link(
-                    { t.str "some", t.space(), t.str "word" },
-                    "#d-some-word"
-                ),
+                t.link({ t.str "some", t.space(), t.str "word" }, "#some-word"),
                 t.punc ".",
             }
         )
@@ -67,7 +61,7 @@ see {$ some word}.
                 t.space(),
                 t.footnote_link(
                     { t.str "some", t.space(), t.str "word" },
-                    "#f-some-word"
+                    "#some-word"
                 ),
                 t.punc ".",
             }
@@ -85,7 +79,7 @@ see {$ some word}.
                     t.space(),
                     t.footnote_link(
                         { t.str "my", t.space(), t.str "footnote" },
-                        "#f-my-footnote"
+                        "#my-footnote"
                     ),
                 },
             }
@@ -101,7 +95,7 @@ see {$ some word}.
                     t.space(),
                     t.footnote_link(
                         { t.str "my", t.space(), t.str "footnote" },
-                        "#f-my-footnote"
+                        "#my-footnote"
                     ),
                 },
             }
@@ -120,7 +114,7 @@ see {$ some word}.
                     t.str "long",
                     t.soft_break(),
                     t.str "heading",
-                }, "#h-long-heading"),
+                }, "#long-heading"),
             }
         )
     end)

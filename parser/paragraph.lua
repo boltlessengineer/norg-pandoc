@@ -141,16 +141,19 @@ M.link = link_dest
         end
         -- TODO: how can we handle magic char(#)?
         if #raw_dest > 0 then
-            if has_prefix "*" then
+            if has_prefix "#" then
                 dest = slice_tbl(dest)
-                target = "#h-" .. make_id_from_str(raw_dest:sub(3, #raw_dest))
+                target = "#" .. make_id_from_str(raw_dest:sub(3, #raw_dest))
+            elseif has_prefix "*" then
+                dest = slice_tbl(dest)
+                target = "#" .. make_id_from_str(raw_dest:sub(3, #raw_dest))
             elseif has_prefix "$" then
                 dest = slice_tbl(dest)
-                target = "#d-" .. make_id_from_str(raw_dest:sub(3, #raw_dest))
+                target = "#" .. make_id_from_str(raw_dest:sub(3, #raw_dest))
             elseif has_prefix "^" then
                 footnote_count = footnote_count + 1
                 dest = slice_tbl(dest)
-                target = "#f-" .. make_id_from_str(raw_dest:sub(3, #raw_dest))
+                target = "#" .. make_id_from_str(raw_dest:sub(3, #raw_dest))
                 -- TODO: {^ 1} : traditional type footnotes
                 local note = require("parser.block").footnotes[dest]
                 desc = desc or dest
