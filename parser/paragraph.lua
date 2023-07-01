@@ -87,13 +87,17 @@ M.styled = choice {
     attached_modifier("&", true) / token.variable,
 }
 
-local inline_without_link = choice {
-    V "Styled",
-    wordchar ^ 1 / token.str,
-    escape_sequence / token.punc,
-    punctuation / token.punc,
-    whitespace ^ 0 * line_ending * whitespace ^ 0 / token.soft_break,
-    whitespace ^ 1 / token.space,
+local inline_grammar = P {
+    Ct(choice {
+        V "Styled",
+        wordchar ^ 1 / token.str,
+        escape_sequence / token.punc,
+        punctuation / token.punc,
+        whitespace ^ 0 * line_ending * whitespace ^ 0 / token.soft_break,
+        whitespace ^ 1 / token.space,
+    } ^ 1),
+    Styled = M.styled,
+    Link = P(false),
 }
 
 local file_loc_pattern = P(true)
@@ -107,86 +111,58 @@ local file_loc_pattern = P(true)
     } ^ 1)
     * (B(wordchar) * P ":")
 local non_space = wordchar + punctuation
-local link_dest = P "{"
-    * Cnil(file_loc_pattern ^ -1)
-    * #non_space
-    * C(Ct((inline_without_link - P "}") ^ 0))
-    * B(non_space)
-    * P "}"
-local link_desc = P "["
-    * #non_space
-    * (Ct(((V "Link" + inline_without_link) - P "]") ^ 0))
-    * B(non_space)
-    * P "]"
-
--- hacky local __eq implement
-local function _eq(a, b)
-    local type_eq = (a._t == b._t) and (a.t == b.t)
-    local content_eq = a[1] == b[1]
-    return type_eq and content_eq
-end
-
-local function is_space_eol(t)
-    return _eq(t, token.space()) or _eq(t, token.soft_break())
-end
-
-local function slice_tbl(tbl)
-    local sliced = {}
-    local skipped = false
-    for i = 3, #tbl do
-        if skipped or not is_space_eol(tbl[i]) then
-            skipped = true
-            table.insert(sliced, tbl[i])
-        end
-    end
-    return sliced
-end
-
+local not_end = (P(1) - P "}") ^ 1
 local function remove_whitespace(str)
     local p = Cs(((S " \t\r\n" ^ 1 / "" - escape_sequence) + lpeg.P(1)) ^ 1)
     return p:match(str)
 end
-
-local footnote_count = 0
+local link_dest = P "{"
+    * Cnil(file_loc_pattern ^ -1)
+    -- * empty_pat(function(str, num) print(str:sub(num, num)) end)
+    * choice {
+        C(P "*" ^ 1) * whitespace ^ 1 * C(not_end),
+        C(P "$") * whitespace ^ 1 * C(not_end),
+        C(P "^") * whitespace ^ 1 * C(not_end),
+        C(P "#") * whitespace ^ 1 * C(not_end),
+        C(P "/") * whitespace ^ 1 * (C(not_end) / remove_whitespace),
+        Cc(false) * #non_space * (C(not_end) / remove_whitespace),
+        Cc(false) * Cc(false),
+        -- P "$$" * whitespace ^ 1 * inline_cap,
+        -- P "^^" * whitespace ^ 1 * inline_cap,
+    }
+    -- * empty_pat(function(str, num) print(str:sub(num, num)) end)
+    * B(non_space)
+    * P "}"
+local link_desc = P(true)
+    * P "["
+    * #non_space
+    * C((P(1) - P "]") ^ 1)
+    * B(non_space)
+    * P "]"
 
 M.link = link_dest
     * link_desc ^ -1
-    / function(file_loc, raw_dest, dest, desc)
+    / function(file_loc, kind, raw_dest, desc)
+        pretty_print(file_loc)
+        pretty_print(kind)
+        pretty_print(raw_dest)
+        pretty_print(desc)
         local target = raw_dest
-        local function has_prefix(prefix)
-            return _eq(dest[1], token.punc(prefix)) and is_space_eol(dest[2])
-        end
-        -- TODO: how can we handle magic char(#)?
-        if #raw_dest > 0 then
-            if has_prefix "#" then
-                dest = slice_tbl(dest)
-                target = "#" .. make_id_from_str(raw_dest:sub(3, #raw_dest))
-            elseif has_prefix "*" then
-                dest = slice_tbl(dest)
-                target = "#" .. make_id_from_str(raw_dest:sub(3, #raw_dest))
-            elseif has_prefix "$" then
-                dest = slice_tbl(dest)
-                target = "#" .. make_id_from_str(raw_dest:sub(3, #raw_dest))
-            elseif has_prefix "^" then
-                footnote_count = footnote_count + 1
-                dest = slice_tbl(dest)
-                target = "#" .. make_id_from_str(raw_dest:sub(3, #raw_dest))
-                -- TODO: {^ 1} : traditional type footnotes
-                local note = require("parser.block").footnotes[dest]
-                desc = desc or dest
-                return token.footnote_link(desc, target)
-            elseif has_prefix "/" then
-                target = remove_whitespace(raw_dest:sub(3, #raw_dest))
-                dest = target
-            else
-                target = remove_whitespace(target)
-                dest = target
-            end
-        else
+        if file_loc then
             target = file_loc .. ".norg"
-            dest = file_loc
+            raw_dest = file_loc
         end
-        desc = desc or dest
+        desc = desc or raw_dest
+        if kind then
+            if kind == "/" then
+            else
+                desc = inline_grammar:match(raw_dest)
+                target = "#" .. make_id_from_str(target)
+                if kind:sub(1, 1) == "^" then
+                    return token.footnote_link(desc, target)
+                end
+            end
+        end
         return token.link(desc, target)
     end
 
@@ -214,6 +190,6 @@ local paragraph_terminate = choice {
 }
 M.paragraph = Ct(
     V "ParaSeg" * (soft_break * (V "ParaSeg" - paragraph_terminate)) ^ 0
-) / token.para
+) / token.para * empty_pat(function() M.state = {} end)
 
 return M
