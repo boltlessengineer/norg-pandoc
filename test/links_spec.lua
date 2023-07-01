@@ -147,16 +147,35 @@ th/to
         )
     end)
     describe("Link with File Location >", function()
-        it("Basic File Location", function()
+        it("File Location", function()
+            local text = "{:path/to/file:}"
+            eq(
+                p:match(text),
+                t.para_seg {
+                    t.link("path/to/file", "path/to/file.norg"),
+                }
+            )
+        end)
+        it("Ignore all non-escaped whitespaces", function()
+            local text = [[{:pa th/t\ o/fi  le:}]]
+            eq(
+                p:match(text),
+                t.para_seg {
+                    t.link("path/t o/file", "path/t o/file.norg"),
+                }
+            )
+        end)
+        it("With newline", function()
             local text = [[
-{:path/to/file:}
+{:path/t
+o/file:}
 ]]
-            -- eq(
-            --     p:match(text),
-            --     t.para_seg {
-            --         t.link("path/to/file", "path/to/file"),
-            --     }
-            -- )
+            eq(
+                p:match(text),
+                t.para_seg {
+                    t.link("path/to/file", "path/to/file.norg"),
+                }
+            )
         end)
     end)
 end)

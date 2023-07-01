@@ -84,12 +84,18 @@ local inline_without_link = choice {
 }
 
 local file_loc_pattern = P(true)
-    * (P ":" * #wordchar)
-    * ((wordchar + P "/") ^ 1)
+    * P ":"
+    * Cs(choice {
+        wordchar,
+        escape_sequence,
+        whitespace / "",
+        line_ending / "",
+        P "/",
+    } ^ 1)
     * (B(wordchar) * P ":")
 local non_space = wordchar + punctuation
 local link_dest = P "{"
-    * C(file_loc_pattern ^ -1)
+    * Cnil(file_loc_pattern ^ -1)
     * #non_space
     * C(Ct((inline_without_link - P "}") ^ 0))
     * B(non_space)
@@ -120,7 +126,7 @@ local function slice_tbl(tbl)
 end
 
 local function remove_whitespace(str)
-    local p = Cs((S " \t\r\n" ^ 1 / "" + lpeg.P(1)) ^ 1)
+    local p = Cs(((S " \t\r\n" ^ 1 / "" - escape_sequence) + lpeg.P(1)) ^ 1)
     return p:match(str)
 end
 
@@ -129,33 +135,36 @@ local footnote_count = 0
 M.link = link_dest
     * link_desc ^ -1
     / function(file_loc, raw_dest, dest, desc)
-        print(">" .. file_loc .. "<")
-        print(">" .. raw_dest .. "<")
         local target = raw_dest
         local function has_prefix(prefix)
             return _eq(dest[1], token.punc(prefix)) and is_space_eol(dest[2])
         end
         -- TODO: how can we handle magic char(#)?
-        if has_prefix "*" then
-            dest = slice_tbl(dest)
-            target = "#h-" .. make_id_from_str(raw_dest:sub(3, #raw_dest))
-        elseif has_prefix "$" then
-            dest = slice_tbl(dest)
-            target = "#d-" .. make_id_from_str(raw_dest:sub(3, #raw_dest))
-        elseif has_prefix "^" then
-            footnote_count = footnote_count + 1
-            dest = slice_tbl(dest)
-            target = "#f-" .. make_id_from_str(raw_dest:sub(3, #raw_dest))
-            -- TODO: {^ 1} : traditional type footnotes
-            local note = require("parser.block").footnotes[dest]
-            desc = desc or dest
-            return token.footnote_link(desc, target)
-        elseif has_prefix "/" then
-            target = remove_whitespace(raw_dest:sub(3, #raw_dest))
-            dest = target
+        if #raw_dest > 0 then
+            if has_prefix "*" then
+                dest = slice_tbl(dest)
+                target = "#h-" .. make_id_from_str(raw_dest:sub(3, #raw_dest))
+            elseif has_prefix "$" then
+                dest = slice_tbl(dest)
+                target = "#d-" .. make_id_from_str(raw_dest:sub(3, #raw_dest))
+            elseif has_prefix "^" then
+                footnote_count = footnote_count + 1
+                dest = slice_tbl(dest)
+                target = "#f-" .. make_id_from_str(raw_dest:sub(3, #raw_dest))
+                -- TODO: {^ 1} : traditional type footnotes
+                local note = require("parser.block").footnotes[dest]
+                desc = desc or dest
+                return token.footnote_link(desc, target)
+            elseif has_prefix "/" then
+                target = remove_whitespace(raw_dest:sub(3, #raw_dest))
+                dest = target
+            else
+                target = remove_whitespace(target)
+                dest = target
+            end
         else
-            target = remove_whitespace(target)
-            dest = target
+            target = file_loc .. ".norg"
+            dest = file_loc
         end
         desc = desc or dest
         return token.link(desc, target)

@@ -38,8 +38,9 @@
           this would be done via standard library in future
    - ( ) Delimiting Modifiers (like horizontal rules)
    - (-) Links (minus *timestamps*, *wikilinks*, *extendable links(=)*, *anchors*)
-   -- (-) to File Location (`{:path/to/file:}`)
-   -- (?) to Line Number
+   -- (?) to File Location (`{:path/to/file:}`)
+   --- (?) transfer it to workspace-local when converting multiple files
+   -- (=) to Line Number
           see: {https://github.com/nvim-neorg/norg-specs/issues/22}[norg-specs#22]
    -- (x) to Detached Modifier
    --- (x) to *Structural Detached Modifiers* (= *headings*)

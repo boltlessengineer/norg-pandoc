@@ -5,6 +5,8 @@ P, S, R, Cf, Cc, Ct, V, Cs, Cg, Cb, B, C, Cmt, Cp =
 
 _G.inspect = require "src.inspect"
 
+function _G.pretty_print(...) print(inspect(...)) end
+
 function _G.choice(patts)
     local patt = patts[1]
     for i = 2, #patts do
@@ -21,6 +23,12 @@ function _G.empty_pat(callback)
         local r = callback(s, n, ...)
         return r ~= nil and r or true
     end)
+end
+
+---All captures made by patt, if patt don't have captures, return nil
+---useful when collecting multiple captures
+function Cnil(patt)
+    return C(patt) / function(_raw, cap) return cap end
 end
 
 function _G.print_cap(...)
