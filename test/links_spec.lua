@@ -18,7 +18,6 @@ describe("Links >", function()
 {https://go
     ogle.com}
 ]]
-        -- TODO: make test
         eq(
             p:match(text),
             t.para_seg {

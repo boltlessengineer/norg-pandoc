@@ -113,11 +113,15 @@ local link_dest = P "{"
     * C(Ct((inline_without_link - P "}") ^ 0))
     * B(non_space)
     * P "}"
-local link_desc = P "[" * #non_space * C((1 - P "]") ^ 0) * B(non_space) * P "]"
+local link_desc = P "["
+    * #non_space
+    * (Ct(((V "Link" + inline_without_link) - P "]") ^ 0))
+    * B(non_space)
+    * P "]"
 
 -- hacky local __eq implement
 local function _eq(a, b)
-    local type_eq = a._t == b._t
+    local type_eq = (a._t == b._t) and (a.t == b.t)
     local content_eq = a[1] == b[1]
     return type_eq and content_eq
 end
@@ -148,6 +152,10 @@ local footnote_count = 0
 M.link = link_dest
     * link_desc ^ -1
     / function(file_loc, raw_dest, dest, desc)
+        pretty_print(file_loc)
+        pretty_print(raw_dest)
+        pretty_print(dest)
+        pretty_print(desc)
         local target = raw_dest
         local function has_prefix(prefix)
             return _eq(dest[1], token.punc(prefix)) and is_space_eol(dest[2])
