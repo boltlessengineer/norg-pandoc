@@ -11,17 +11,6 @@
 * ( ) implement custom pandoc reader
 ** (?) Layer 1
    - (x) Attached Modifiers
-   -- (x) Bold
-   -- (x) Italic
-   -- (x) Underline
-   -- (x) StrikeThrough
-   -- (x) Spoiler
-   -- (x) Superscript
-   -- (x) Subscript
-   -- (x) InlineCode
-   -- (x) NullModifier
-   -- (x) InlineMath
-   -- (x) Variable
    - (x) Links (only URL type)
    - (x) Escape Char
 ** ( ) Layer 2
@@ -49,7 +38,7 @@
    -- (x) to Custom Detached Modifier
    --- (x) magic (`#`)
    --- (x) file (`/`)
-   - ( ) Link Modifier (the `:` thing)
+   - (x) Link Modifier (the `:` thing)
 ** ( ) Layer 3
    - ( ) Links (*timestamps*, *wikilinks*)
    - ( ) Inline Link Targets

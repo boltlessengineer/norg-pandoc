@@ -110,7 +110,7 @@ describe("Attached Modifiers >", function()
             }
         )
     end)
-    it("Ignore multiple whitespaces inside bold", function ()
+    it("Ignore multiple whitespaces inside bold", function()
         local text = [[
 *bold   
     text*
@@ -123,6 +123,19 @@ describe("Attached Modifiers >", function()
                     t.soft_break(),
                     t.str "text",
                 },
+            }
+        )
+    end)
+    it("Link Modifier", function()
+        local text = [[
+Intra:*word*:bold
+]]
+        eq(
+            p:match(text),
+            t.para_seg {
+                t.str "Intra",
+                t.bold { t.str "word" },
+                t.str "bold",
             }
         )
     end)

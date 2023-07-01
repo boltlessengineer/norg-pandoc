@@ -21,8 +21,21 @@ local function attached_modifier(punc_char, verbatim)
         return true
     end)
 
-    local modi_start = (#-B(wordchar) * punc * #non_whitespace_char) * pre
-    local modi_end = B(non_whitespace_char) * punc * -wordchar * post
+    local modi_start = (
+        choice {
+            B(wordchar) * P ":",
+            #-B(wordchar),
+        }
+        * punc
+        * #non_whitespace_char
+    ) * pre
+    local modi_end = B(non_whitespace_char)
+        * punc
+        * choice {
+            (P ":") * #wordchar,
+            -wordchar,
+        }
+        * post
     local free_modi_start = (#-B(wordchar) * punc * P "|")
     local free_modi_end = P "|" * punc * -wordchar
 
