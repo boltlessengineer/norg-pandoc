@@ -152,10 +152,6 @@ local footnote_count = 0
 M.link = link_dest
     * link_desc ^ -1
     / function(file_loc, raw_dest, dest, desc)
-        pretty_print(file_loc)
-        pretty_print(raw_dest)
-        pretty_print(dest)
-        pretty_print(desc)
         local target = raw_dest
         local function has_prefix(prefix)
             return _eq(dest[1], token.punc(prefix)) and is_space_eol(dest[2])
