@@ -1,7 +1,21 @@
 %If you are reading this document on repo's main page, it means that the parser is not yet nearly complete. ;)%
 
 * norg-pandoc
-  Custom pandoc reader for {https://github.com/nvim-neorg/norg-specs}[Norg format]. It will be able to transfrom .norg files to the {https://github.com/jgm/pandoc}[pandoc] AST.
+  Custom pandoc reader for {https://github.com/nvim-neorg/norg-specs}[Norg format].
+
+** Usage
+
+   @code bash
+   pandoc -f init.lua # more pandoc options
+   @end
+
+*** Example: Convert norg file to markdown file
+
+    This is CI code used in this repo to convert Norg README file to Github-Flavored-Markdown
+
+    @code bash
+    pandoc --from=init.lua --to=gfm README.norg --output=README.md
+    @end
 
 ** why?
 
