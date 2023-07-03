@@ -3,6 +3,9 @@
 * norg-pandoc
   Custom pandoc reader for {https://github.com/nvim-neorg/norg-specs}[Norg format].
 
+  > NOTE:
+  > This is WIP project. Would not work in some edge cases.
+
 ** Usage
 
    @code bash
