@@ -118,7 +118,6 @@ local function remove_whitespace(str)
 end
 local link_dest = P "{"
     * Cnil(file_loc_pattern ^ -1)
-    -- * empty_pat(function(str, num) print(str:sub(num, num)) end)
     * choice {
         C(P "*" ^ 1) * whitespace ^ 1 * C(not_end),
         C(P "$") * whitespace ^ 1 * C(not_end),
@@ -130,23 +129,30 @@ local link_dest = P "{"
         -- P "$$" * whitespace ^ 1 * inline_cap,
         -- P "^^" * whitespace ^ 1 * inline_cap,
     }
-    -- * empty_pat(function(str, num) print(str:sub(num, num)) end)
     * B(non_space)
     * P "}"
 local link_desc = P(true)
     * P "["
     * #non_space
-    * C((P(1) - P "]") ^ 1)
+    * Ct(choice {
+        V "Styled",
+        V "Link",
+        wordchar ^ 1 / token.str,
+        escape_sequence / token.punc,
+        punctuation / token.punc - P "]",
+        whitespace ^ 0 * line_ending * whitespace ^ 0 / token.soft_break,
+        whitespace ^ 1 / token.space,
+    } ^ 1)
     * B(non_space)
     * P "]"
 
 M.link = link_dest
     * link_desc ^ -1
     / function(file_loc, kind, raw_dest, desc)
-        pretty_print(file_loc)
-        pretty_print(kind)
-        pretty_print(raw_dest)
-        pretty_print(desc)
+        -- pretty_print(file_loc)
+        -- pretty_print(kind)
+        -- pretty_print(raw_dest)
+        -- pretty_print(desc)
         local target = raw_dest
         if file_loc then
             target = file_loc .. ".norg"

@@ -177,17 +177,18 @@ o/file:}
 {https://go
     ogle.com}[*bold* {https://github.com}[github] text]
 ]]
-        -- eq(
-        --     p:match(text),
-        --     t.para_seg {
-        --         t.link({
-        --             t.bold { t.str "bold" },
-        --             t.space(),
-        --             t.link({ t.str "github" }, "https://github.com"),
-        --             t.space(),
-        --             t.str "text",
-        --         }, "https://google.com"),
-        --     }
-        -- )
+        eq(
+            p:match(text),
+            t.para_seg {
+                t.link({
+                    t.bold { t.str "bold" },
+                    t.space(),
+                    t.link({ t.str "github" }, "https://github.com"),
+                    t.space(),
+                    t.str "text",
+                }, "https://google.com"),
+            }
+        )
     end)
+    -- TODO: {google.com}[this is *bold ]*]
 end)
