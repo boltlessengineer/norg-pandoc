@@ -58,10 +58,7 @@ see {$ some word}.
             t.para_seg {
                 t.str "see",
                 t.space(),
-                t.footnote_link(
-                    { t.str "some", t.space(), t.str "word" },
-                    "#some-word"
-                ),
+                t.superscript "some word",
                 t.punc ".",
             }
         )
@@ -76,10 +73,8 @@ see {$ some word}.
                 t.superscript {
                     t.str "see",
                     t.space(),
-                    t.footnote_link(
-                        { t.str "my", t.space(), t.str "footnote" },
-                        "#my-footnote"
-                    ),
+                    -- FIX: don't make superscript inside subscript
+                    t.superscript "my footnote",
                 },
             }
         )
@@ -92,10 +87,7 @@ see {$ some word}.
                 t.subscript {
                     t.str "see",
                     t.space(),
-                    t.footnote_link(
-                        { t.str "my", t.space(), t.str "footnote" },
-                        "#my-footnote"
-                    ),
+                    t.superscript "my footnote",
                 },
             }
         )

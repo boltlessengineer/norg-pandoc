@@ -32,9 +32,9 @@
           see: {https://github.com/nvim-neorg/norg-specs/issues/22}[norg-specs#22]
    -- (x) to Detached Modifier
    --- (x) to *Structural Detached Modifiers* (= *headings*)
-   --- (-) to *Range-able Detached Modifiers* (= *definitions*, *footnotes*)
+   --- (x) to *Range-able Detached Modifiers* (= *definitions*, *footnotes*)
    ---- (x) definitions
-   ---- (-) footnotes
+   ---- (x) footnotes
    -- (x) to Custom Detached Modifier
    --- (x) magic (`#`)
    --- (x) file (`/`)
@@ -47,8 +47,7 @@
    - ( ) Detached Modifier Suffix
    - (x) Range-able Detached Modifiers (minus *table cells*)
    -- (x) Definition
-   -- (-) Footnotes
-          Create footnote elements at the end of the document
+   -- (x) Footnotes
    - ( ) Link Modifier
 ** ( ) Layer 4
    - ( ) standard ranged tags (`\|comment`, etc.)

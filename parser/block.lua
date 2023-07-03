@@ -66,7 +66,7 @@ M.heading = P(true)
     * whitespace ^ 1
     * C(V "ParaSeg")
     / function(lev, str, content)
-        local id = "h-" .. make_id_from_str(str)
+        local id = make_id_from_str(str)
         return lev, content, id
     end
     / token.heading
@@ -102,7 +102,7 @@ do
         local list = {}
         for i, item in ipairs(defs) do
             local raw, txt, def = table.unpack(item)
-            local title = "d-" .. make_id_from_str(raw)
+            local title = make_id_from_str(raw)
             list[i] = { token.definition_text(txt, { id = title }), def }
         end
         return token.definition_list(list)
@@ -116,7 +116,8 @@ do
             rangeable_ranged_capture "^",
         },
         function(_, _, raw, _txt, def)
-            local title = "f-" .. make_id_from_str(raw)
+            local title = make_id_from_str(raw)
+            pretty_print(def)
             M.footnotes[title] = def
             return true
         end

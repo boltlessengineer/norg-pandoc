@@ -122,12 +122,12 @@ local link_dest = P "{"
         C(P "*" ^ 1) * whitespace ^ 1 * C(not_end),
         C(P "$") * whitespace ^ 1 * C(not_end),
         C(P "^") * whitespace ^ 1 * C(not_end),
+        C(P "^^") * whitespace ^ 1 * C(not_end),
         C(P "#") * whitespace ^ 1 * C(not_end),
         C(P "/") * whitespace ^ 1 * (C(not_end) / remove_whitespace),
-        Cc(false) * #non_space * (C(not_end) / remove_whitespace),
-        Cc(false) * Cc(false),
+        Cc(false) * #non_space * (C(not_end) / remove_whitespace), -- URL type
+        Cc(false) * Cc(false), -- only File Location
         -- P "$$" * whitespace ^ 1 * inline_cap,
-        -- P "^^" * whitespace ^ 1 * inline_cap,
     }
     * B(non_space)
     * P "}"
@@ -153,23 +153,36 @@ M.link = link_dest
         -- pretty_print(kind)
         -- pretty_print(raw_dest)
         -- pretty_print(desc)
-        local target = raw_dest
+        local target_str = raw_dest
         if file_loc then
-            target = file_loc .. ".norg"
+            target_str = file_loc .. ".norg"
             raw_dest = file_loc
         end
-        desc = desc or raw_dest
+        local desc_content = desc or raw_dest
         if kind then
             if kind == "/" then
-            else
-                desc = inline_grammar:match(raw_dest)
-                target = "#" .. make_id_from_str(target)
-                if kind:sub(1, 1) == "^" then
-                    return token.footnote_link(desc, target)
+            elseif kind:sub(1, 1) == "^" then
+                local title = make_id_from_str(target_str)
+                local content = require("parser.block").footnotes[title]
+                if content then
+                    if desc then
+                        return token.note(content),
+                            token.superscript { " ", table.unpack(desc) }
+                    else
+                        return token.note(content)
+                    end
+                -- FIX: This doesn't work. `M.state` is only valid while parsing
+                elseif M.state["^"] or M.state[","] then
+                    return token.str(target_str)
+                else
+                    return token.superscript(target_str)
                 end
+            else
+                desc_content = inline_grammar:match(raw_dest)
+                target_str = "#" .. make_id_from_str(target_str)
             end
         end
-        return token.link(desc, target)
+        return token.link(desc_content, target_str)
     end
 
 -- TODO: implement anchor
@@ -189,7 +202,11 @@ local soft_break = line_ending / token.soft_break
 local paragraph_terminate = choice {
     (whitespace ^ 0 * line_ending),
     -- detached modifier starts
-    (whitespace ^ 0 * S "*-~>%" ^ 1 * whitespace ^ 1),
+    (whitespace ^ 0 * S "*-~>%" ^ 1 * whitespace),
+    (whitespace ^ 0 * choice {
+        P "^^",
+        P "$$",
+    } * line_ending),
     -- V "delimiting_modifier",
     -- V "ranged_tag",
     -- V "strong_carryover_tag"

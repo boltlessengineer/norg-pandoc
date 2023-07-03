@@ -34,14 +34,6 @@ local M = {
     definition_text = "Span",
     definition_list = "DefinitionList",
     note = "Note",
-    footnote_link = function(text, target)
-        local state = require("parser.paragraph").state
-        if state["^"] or state[","] then
-            return pandoc.Link(text, target)
-        else
-            return pandoc.Superscript(pandoc.Link(text, target))
-        end
-    end,
 }
 
 local function t_with_val(id)
