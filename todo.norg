@@ -27,15 +27,12 @@
    - ( ) Delimiting Modifiers (like horizontal rules)
    - (x) Links (minus *timestamps*, *wikilinks*, *extendable links(=)*, *anchors*)
    -- (x) to File Location (`{:path/to/file:}`)
-   --- (?) transfer it to workspace-local when converting multiple files
    -- (_) to Line Number
           see: {https://github.com/nvim-neorg/norg-specs/issues/22}[norg-specs#22]
    -- (x) to Detached Modifier
    --- (x) to *Structural Detached Modifiers* (= *headings*)
    --- (x) to *Range-able Detached Modifiers* (= *definitions*, *footnotes*)
-   ---- (x) definitions
-   ---- (x) footnotes
-   -- (x) to Custom Detached Modifier
+   -- (x) to Custom Detached Modifiers
    --- (x) magic (`#`)
    --- (x) file (`/`)
    - (x) Link Modifier (the `:` thing)

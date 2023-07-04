@@ -3,6 +3,7 @@ require "globals"
 local token = require "token"
 local block = require "parser.block"
 local paragraph = require "parser.paragraph"
+local list = require "parser.list"
 
 _G.grammar = {
     "Doc",
@@ -12,10 +13,12 @@ _G.grammar = {
     } ^ 0) / token.pandoc,
     Block = block.block,
     Heading = block.heading,
-    list = block.list,
+    list = V "UnorderedList" + V "OrderedList",
     quote = block.quote,
-    UnorderedList = block.unordered_list,
-    OrderedList = block.ordered_list,
+    UnorderedList = list.unordered_list,
+    OrderedList = list.ordered_list,
+    bullet_list_item = list.bullet_list_item,
+    ordered_list_item = list.ordered_list_item,
     detached_modifier = block.detached_modifier,
     ParaSeg = paragraph.paragraph_segment,
     Para = paragraph.paragraph,

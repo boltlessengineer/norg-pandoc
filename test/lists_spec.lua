@@ -45,9 +45,7 @@ but not further
                 }
             )
         end)
-        -- FIX: solve this test case
-
-        --[[ it("Nested Unorderd list", function()
+        it("Nested Unorderd list", function()
             local text = [=[
 -- level2
 --- level3
@@ -83,7 +81,7 @@ but not further
                     },
                 }
             )
-        end) ]]
+        end)
     end)
     describe("Quotes >", function()
         it("Unordered List", function()
