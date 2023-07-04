@@ -9,7 +9,7 @@
         it is useful for debuging.
   - ( ) we can parse all line-ending with `whitespace ^ 0 * line_ending * whitespace ^ 0`
 * ( ) implement custom pandoc reader
-** (?) Layer 1
+** (x) Layer 1
    - (x) Attached Modifiers
    - (x) Links (only URL type)
    - (x) Escape Char

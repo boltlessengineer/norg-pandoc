@@ -30,7 +30,7 @@ but not further
         end)
         it("Ordered List", function()
             local text = [[
-- Ordered list content
+~ Ordered list content
 spanning a paragraph
 
 but not further
@@ -38,13 +38,15 @@ but not further
             eq(
                 p:match(text),
                 t.pandoc {
-                    t.bullet_list {
+                    t.ordered_list {
                         { t.para() },
                     },
                     t.para(),
                 }
             )
         end)
+        -- FIX: solve this test case
+
         --[[ it("Nested Unorderd list", function()
             local text = [=[
 -- level2
@@ -83,5 +85,36 @@ but not further
             )
         end) ]]
     end)
-    describe("Quotes >", function() end)
+    describe("Quotes >", function()
+        it("Unordered List", function()
+            local text = [[
+> Quote content
+spanning a paragraph
+
+but not further
+]]
+            eq(
+                p:match(text),
+                t.pandoc {
+                    t.quote { t.para() },
+                    t.para(),
+                }
+            )
+        end)
+        it("with multiple paragraphs", function()
+            local text = [[
+> Quote content
+> This is same quote with seperate paragraph
+
+> This is different quote
+            ]]
+            eq(
+                p:match(text),
+                t.pandoc {
+                    t.quote { t.para(), t.para() },
+                    t.quote { t.para() },
+                }
+            )
+        end)
+    end)
 end)

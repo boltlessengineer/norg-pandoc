@@ -32,7 +32,7 @@ local function list_item(lev, start)
 end
 local function quote_item(lev)
     local start_p = P ">"
-    local subitem = function()
+    local function subitem()
         if lev < 6 then
             return quote_item(lev + 1)
         else
@@ -41,11 +41,11 @@ local function quote_item(lev)
     end
     -- stylua: ignore
     return Ct(
-        whitespace ^ 0
+        (whitespace ^ 0
         * start_p ^ lev
         * whitespace ^ 1
         * V "Para"
-        * line_ending
+        * line_ending) ^ 1
         * choice {
             P(true) * subitem() / token.quote,
             -- HACK: hacky way to avoid "loop body may accept empty string" compile error
