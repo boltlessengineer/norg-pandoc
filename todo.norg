@@ -24,7 +24,7 @@
    -- (x) `@code`
    -- (=) `@document.meta`
           this would be done via standard library in future
-   - ( ) Delimiting Modifiers (like horizontal rules)
+   - (x) Delimiting Modifiers (like horizontal rules)
    - (x) Links (minus *timestamps*, *wikilinks*, *extendable links(=)*, *anchors*)
    -- (x) to File Location (`{:path/to/file:}`)
    -- (_) to Line Number

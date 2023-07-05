@@ -27,6 +27,11 @@ _G.grammar = {
     verbatim_ranged_tag = block.verbatim_ranged_tag,
     definition = block.definition_list,
     footnote = block.footnote,
+    delimiting_mod = choice {
+        block.week_delimiting_mod,
+        block.strong_delimiting_mod,
+        block.horizontal_rule,
+    },
 }
 
 -- _G.grammar = require("src.pegdebug").trace(grammar)

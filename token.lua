@@ -50,7 +50,12 @@ for key, value in pairs(M) do
             M[key] = pandoc[value]
         end
     else
-        if key == "space" or key == "soft_break" or key == "line_break" then
+        if
+            key == "space"
+            or key == "soft_break"
+            or key == "line_break"
+            or key == "horizontal_rule"
+        then
             M[key] = t_none_val(key)
         elseif key == "inlines" then
             M[key] = function(...) return ... end

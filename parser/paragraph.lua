@@ -207,13 +207,12 @@ local paragraph_terminate = choice {
         P "^^",
         P "$$",
     } * line_ending),
-    -- V "delimiting_modifier",
+    V "delimiting_mod",
     -- V "ranged_tag",
     -- V "strong_carryover_tag"
 }
-M.paragraph_patt = Ct(
-    V "ParaSeg" * (soft_break * (V "ParaSeg" - paragraph_terminate)) ^ 0
-)
+M.paragraph_patt =
+    Ct(V "ParaSeg" * (soft_break * (V "ParaSeg" - paragraph_terminate)) ^ 0)
 M.paragraph = M.paragraph_patt / token.para
 
 return M

@@ -30,7 +30,9 @@ end
 
 M.quote = quote_item(1) / token.quote
 
-local horizontal_rule = P "_" ^ 3 / token.horizontal_rule
+M.week_delimiting_mod = P "-" ^ 2 * line_ending
+M.strong_delimiting_mod = P "=" ^ 2 * line_ending
+M.horizontal_rule = P "_" ^ 2 * line_ending / token.horizontal_rule
 
 M.heading = P(true)
     * (P "*" ^ 1 / string.len)
@@ -135,6 +137,7 @@ end
 M.block = choice {
     V "detached_modifier",
     V "verbatim_ranged_tag",
+    V "delimiting_mod",
     V "Para",
 }
 
