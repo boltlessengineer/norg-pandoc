@@ -1,8 +1,35 @@
 require "globals"
 
+local paragraph = require "parser.paragraph"
 local token = require "token"
 
 local M = {}
+
+local ext_wordchar = (wordchar + punctuation - (P ")" - P "|")) ^ 1
+local ext_ch = S " x?!+-=_@#<>"
+local ext_item = C(ext_ch * (whitespace * ext_wordchar) ^ 0)
+local ext =
+    Ct(P "(" * ext_item * (P "|" * ext_item) ^ 0 * P ")" * whitespace ^ 1)
+local ext_cap = Cnil(ext ^ -1)
+    / function(cap)
+        if not cap then
+            return
+        end
+        for _, e in ipairs(cap) do
+            -- how this works: https://github.com/jgm/pandoc/pull/5139
+            if e == "x" then
+                return {
+                    pandoc.Str "☒",
+                    pandoc.Space(),
+                }
+            else
+                return {
+                    pandoc.Str "☐",
+                    pandoc.Space(),
+                }
+            end
+        end
+    end
 
 local list_lev = { 0 }
 function list_lev:push(lev) table.insert(list_lev, lev) end
@@ -17,7 +44,8 @@ local is_sub_start = false
 local function list_item(ch)
     local sub_pre = empty_pat(function() is_sub_start = true end)
     local sub_quit = empty_pat(function() is_sub_start = false end)
-    return whitespace ^ 0
+    return (
+        whitespace ^ 0
         * Cmt(P(ch) ^ 1 / string.len, function(_str, _pos, count)
             if count == list_lev:last() and not is_sub_start then
                 return true
@@ -34,10 +62,19 @@ local function list_item(ch)
             end
         end)
         * whitespace ^ 1
-        * Ct(V "Para" * line_ending * (sub_pre * choice {
-            Ct(V "bullet_list_item" ^ 1) / token.bullet_list,
-            Ct(V "ordered_list_item" ^ 1) / token.ordered_list,
-        } + sub_quit))
+        * Ct(
+            (Ct(ext_cap * paragraph.paragraph_patt) / token.para)
+                * line_ending
+                * (
+                    sub_pre
+                        * choice {
+                            Ct(V "bullet_list_item" ^ 1) / token.bullet_list,
+                            Ct(V "ordered_list_item" ^ 1) / token.ordered_list,
+                        }
+                    + sub_quit
+                )
+        )
+    )
 end
 
 M.bullet_list_item = list_item "-"

@@ -196,7 +196,7 @@ M.paragraph_segment = Ct(whitespace ^ 0 * choice {
     escape_sequence / token.punc,
     punctuation / token.punc,
     whitespace / token.space,
-} ^ 1) / token.para_seg
+} ^ 1) / token.para_seg * empty_pat(function() M.state = {} end)
 
 local soft_break = line_ending / token.soft_break
 local paragraph_terminate = choice {
@@ -211,8 +211,9 @@ local paragraph_terminate = choice {
     -- V "ranged_tag",
     -- V "strong_carryover_tag"
 }
-M.paragraph = Ct(
+M.paragraph_patt = Ct(
     V "ParaSeg" * (soft_break * (V "ParaSeg" - paragraph_terminate)) ^ 0
-) / token.para * empty_pat(function() M.state = {} end)
+)
+M.paragraph = M.paragraph_patt / token.para
 
 return M

@@ -40,12 +40,12 @@
    - ( ) Links (*timestamps*, *wikilinks*)
    - ( ) Inline Link Targets
    - ( ) Carryover Tags
-   - ( ) Detached Modifier Extensions
+   - (-) Detached Modifier Extensions
    - ( ) Detached Modifier Suffix
    - (x) Range-able Detached Modifiers (minus *table cells*)
    -- (x) Definition
    -- (x) Footnotes
-   - ( ) Link Modifier
+   - (x) Link Modifier
 ** ( ) Layer 4
    - ( ) standard ranged tags (`\|comment`, etc.)
    - (?) table cells
