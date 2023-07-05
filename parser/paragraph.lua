@@ -107,7 +107,7 @@ local file_loc_pattern = P(true)
         escape_sequence,
         whitespace / "",
         line_ending / "",
-        P "/",
+        punctuation - P ":",
     } ^ 1)
     * (B(wordchar) * P ":")
 local non_space = wordchar + punctuation
@@ -121,13 +121,13 @@ local link_dest = P "{"
     * choice {
         C(P "*" ^ 1) * whitespace ^ 1 * C(not_end),
         C(P "$") * whitespace ^ 1 * C(not_end),
+        C(P "$$") * whitespace ^ 1 * C(not_end),
         C(P "^") * whitespace ^ 1 * C(not_end),
         C(P "^^") * whitespace ^ 1 * C(not_end),
         C(P "#") * whitespace ^ 1 * C(not_end),
         C(P "/") * whitespace ^ 1 * (C(not_end) / remove_whitespace),
         Cc(false) * #non_space * (C(not_end) / remove_whitespace), -- URL type
         Cc(false) * Cc(false), -- only File Location
-        -- P "$$" * whitespace ^ 1 * inline_cap,
     }
     * B(non_space)
     * P "}"
@@ -146,47 +146,62 @@ local link_desc = P(true)
     * B(non_space)
     * P "]"
 
-M.link = link_dest
-    * link_desc ^ -1
-    / function(file_loc, kind, raw_dest, desc)
-        -- pretty_print(file_loc)
-        -- pretty_print(kind)
-        -- pretty_print(raw_dest)
-        -- pretty_print(desc)
-        local target_str = raw_dest
-        if file_loc then
-            target_str = file_loc .. ".norg"
-            raw_dest = file_loc
-        end
-        local desc_content = desc or raw_dest
-        if kind then
-            if kind == "/" then
-            elseif kind:sub(1, 1) == "^" then
-                local title = make_id_from_str(target_str)
-                local content = require("parser.block").footnotes[title]
-                if content then
-                    if desc then
-                        return token.note(content),
-                            token.superscript { " ", table.unpack(desc) }
-                    else
-                        return token.note(content)
-                    end
-                -- FIX: This doesn't work. `M.state` is only valid while parsing
-                elseif M.state["^"] or M.state[","] then
-                    return token.str(target_str)
-                else
-                    return token.superscript(target_str)
-                end
-            else
-                desc_content = inline_grammar:match(raw_dest)
-                target_str = "#" .. make_id_from_str(target_str)
-            end
-        end
-        return token.link(desc_content, target_str)
+local function link_handler(file_loc, kind, raw_dest, desc)
+    -- pretty_print(file_loc)
+    -- pretty_print(kind)
+    -- pretty_print(raw_dest)
+    -- pretty_print(desc)
+    local target_str = raw_dest
+    if file_loc then
+        target_str = file_loc .. ".norg"
+        raw_dest = file_loc
     end
+    local desc_content = desc or raw_dest
+    if kind then
+        if kind == "/" then
+        elseif kind:sub(1, 1) == "^" then
+            local title = make_id_from_str(target_str)
+            local content = require("parser.block").footnotes[title]
+            if content then
+                if desc then
+                    return token.note(content),
+                        token.superscript { " ", table.unpack(desc) }
+                else
+                    return token.note(content)
+                end
+                -- FIX: This doesn't work. `M.state` is only valid while parsing
+            elseif M.state["^"] or M.state[","] then
+                return token.str(target_str)
+            else
+                return token.superscript(target_str)
+            end
+        else
+            desc_content = inline_grammar:match(raw_dest)
+            target_str = "#" .. make_id_from_str(target_str)
+        end
+    end
+    return token.link(desc_content, target_str)
+end
+M.link = link_dest * link_desc ^ -1 / link_handler
 
--- TODO: implement anchor
-M.anchor = link_desc * (link_dest + link_desc) ^ -1
+local anchors = {}
+M.anchor = C(link_desc)
+    * link_dest ^ -1
+    / function(raw_desc, desc, file_loc, kind, raw_dest)
+        -- TODO: create desc_id from desc
+        local desc_id = make_id_from_str(raw_desc)
+        if file_loc or raw_dest then
+            local element = link_handler(file_loc, kind, raw_dest, desc)
+            anchors[desc_id] = element
+            return element
+        else
+            local element = anchors[desc_id]
+            if not element then
+                element = link_handler(nil, false, "", desc)
+            end
+            return element
+        end
+    end
 
 -- re-check preceding whitespaces for nested blocks
 M.paragraph_segment = Ct(whitespace ^ 0 * choice {
