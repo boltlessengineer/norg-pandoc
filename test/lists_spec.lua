@@ -45,7 +45,7 @@ but not further
                 }
             )
         end)
-        it("Nested Unorderd list", function()
+        it("Nested Unordered list", function()
             local text = [=[
 -- level2
 --- level3
@@ -82,9 +82,33 @@ but not further
                 }
             )
         end)
+        it("Seperated Unordered list", function()
+            local text = [[
+- level1
+-- level2
+
+- level1
+]]
+            eq(
+                p:match(text),
+                t.pandoc {
+                    t.bullet_list {
+                        {
+                            t.para(),
+                            t.bullet_list {
+                                { t.para() },
+                            },
+                        },
+                    },
+                    t.bullet_list {
+                        { t.para() },
+                    },
+                }
+            )
+        end)
     end)
     describe("Quotes >", function()
-        it("Unordered List", function()
+        it("Quotes", function()
             local text = [[
 > Quote content
 spanning a paragraph
@@ -110,6 +134,26 @@ but not further
                 p:match(text),
                 t.pandoc {
                     t.quote { t.para(), t.para() },
+                    t.quote { t.para() },
+                }
+            )
+        end)
+        it("nested quotes", function()
+            local text = [[
+> Quote content
+>> This is level2 quote
+> Now back to level1
+
+> This is different quote
+            ]]
+            eq(
+                p:match(text),
+                t.pandoc {
+                    t.quote {
+                        t.para(),
+                        t.quote { t.para() },
+                        t.para(),
+                    },
                     t.quote { t.para() },
                 }
             )

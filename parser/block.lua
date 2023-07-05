@@ -4,32 +4,6 @@ local token = require "token"
 
 local M = {}
 
-local function quote_item(lev)
-    local start_p = P ">"
-    local function subitem()
-        if lev < 6 then
-            return quote_item(lev + 1)
-        else
-            return (1 - 1) -- fails
-        end
-    end
-    -- stylua: ignore
-    return Ct(
-        (whitespace ^ 0
-        * start_p ^ lev
-        * whitespace ^ 1
-        * V "Para"
-        * line_ending) ^ 1
-        * choice {
-            P(true) * subitem() / token.quote,
-            -- HACK: hacky way to avoid "loop body may accept empty string" compile error
-            Cc(nil),
-        }
-    )
-end
-
-M.quote = quote_item(1) / token.quote
-
 M.week_delimiting_mod = P "-" ^ 2 * line_ending
 M.strong_delimiting_mod = P "=" ^ 2 * line_ending
 M.horizontal_rule = P "_" ^ 2 * line_ending / token.horizontal_rule
@@ -90,7 +64,6 @@ do
         },
         function(_, _, raw, _txt, def)
             local title = make_id_from_str(raw)
-            pretty_print(def)
             M.footnotes[title] = def
             return true
         end
@@ -103,7 +76,7 @@ M.detached_modifier = choice {
     -- nestable
     V "list",
     V "quote",
-    -- TODO: range-able
+    -- range-able
     V "definition",
     V "footnote",
 }

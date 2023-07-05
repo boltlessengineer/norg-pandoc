@@ -31,55 +31,71 @@ local ext_cap = Cnil(ext ^ -1)
         end
     end
 
-local list_lev = { 0 }
-function list_lev:push(lev) table.insert(list_lev, lev) end
-function list_lev:last() return list_lev[#list_lev] end
-function list_lev:pop()
-    local popped = list_lev[#list_lev]
-    list_lev[#list_lev] = nil
+local nest_lev = {}
+function nest_lev:new()
+    self.__index = self
+    local obj = setmetatable({ 0, sub_start = false }, self)
+    return obj, function() obj:reset() end
+end
+function nest_lev:push(lev) table.insert(self, lev) end
+function nest_lev:last() return self[#self] end
+function nest_lev:pop()
+    local popped = self[#self]
+    self[#self] = nil
     return popped
 end
-local is_sub_start = false
+function nest_lev:reset()
+    while #self > 1 do
+        self:pop()
+    end
+end
 
-local function list_item(ch)
-    local sub_pre = empty_pat(function() is_sub_start = true end)
-    local sub_quit = empty_pat(function() is_sub_start = false end)
+local function nest_item(ch, item, lev, sub)
+    local sub_pre = empty_pat(function() lev.sub_start = true end)
+    local sub_quit = empty_pat(function() lev.sub_start = false end)
     return (
         whitespace ^ 0
         * Cmt(P(ch) ^ 1 / string.len, function(_str, _pos, count)
-            if count == list_lev:last() and not is_sub_start then
+            if count == lev:last() and not lev.sub_start then
                 return true
-            elseif count > list_lev:last() then
-                list_lev:push(count)
-                is_sub_start = false
+            elseif count > lev:last() then
+                lev:push(count)
+                lev.sub_start = false
                 return true
             else
-                if not is_sub_start then
-                    list_lev:pop()
+                if not lev.sub_start then
+                    lev:pop()
                 end
-                is_sub_start = false
+                lev.sub_start = false
                 return false
             end
         end)
         * whitespace ^ 1
-        * Ct(
-            (Ct(ext_cap * paragraph.paragraph_patt) / token.para)
-                * line_ending
-                * (
-                    sub_pre
-                        * choice {
-                            Ct(V "bullet_list_item" ^ 1) / token.bullet_list,
-                            Ct(V "ordered_list_item" ^ 1) / token.ordered_list,
-                        }
-                    + sub_quit
-                )
-        )
+        * item
+        * line_ending
+        * (sub_pre * sub + sub_quit)
     )
 end
 
-M.bullet_list_item = list_item "-"
-M.ordered_list_item = list_item "~"
-M.unordered_list = Ct(M.bullet_list_item ^ 1) / token.bullet_list
-M.ordered_list = Ct(M.ordered_list_item ^ 1) / token.ordered_list
+local list_lev, list_reset = nest_lev:new()
+local list_sub = choice {
+    Ct(V "bullet_list_item" ^ 1) / token.bullet_list,
+    Ct(V "ordered_list_item" ^ 1) / token.ordered_list,
+}
+local list_item = (Ct(ext_cap * paragraph.paragraph_patt) / token.para)
+M.bullet_list_item = Ct(nest_item("-", list_item, list_lev, list_sub))
+M.ordered_list_item = Ct(nest_item("~", list_item, list_lev, list_sub))
+M.unordered_list = Ct(M.bullet_list_item ^ 1)
+    / token.bullet_list
+    * empty_pat(list_reset)
+M.ordered_list = Ct(M.ordered_list_item ^ 1)
+    / token.ordered_list
+    * empty_pat(list_reset)
+
+local quote_lev, quote_reset = nest_lev:new()
+local quote_sub = Ct(V "quote_item" ^ 1) / token.quote
+local quote_item = V "Para"
+M.quote_item = nest_item(">", quote_item, quote_lev, quote_sub)
+M.quote = Ct(M.quote_item ^ 1) / token.quote * empty_pat(quote_reset)
 
 return M
