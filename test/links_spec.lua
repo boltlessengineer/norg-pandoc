@@ -162,7 +162,18 @@ o/file:}
                 }
             )
         end)
-        -- TODO: test {:path/to/file:** heading}
+        it("With modifiers", function()
+            local text = "{:path/to/file:** my heading}"
+            eq(
+                p:match(text),
+                t.para_seg {
+                    t.link(
+                        { t.str "my", t.space(), t.str "heading" },
+                        "path/to/file.norg#my-heading"
+                    ),
+                }
+            )
+        end)
     end)
     it("URL link with description", function()
         local text = [[

@@ -1,7 +1,22 @@
 require "globals"
+
+local block = require "parser.block"
 local token = require "token"
 
 local M = {}
+
+local paragraph_terminate = choice {
+    (whitespace ^ 0 * line_ending),
+    -- detached modifier starts
+    (whitespace ^ 0 * S "*-~>%" ^ 1 * whitespace),
+    (whitespace ^ 0 * choice {
+        P "^^",
+        P "$$",
+    } * line_ending),
+    V "delimiting_mod",
+    -- V "ranged_tag",
+    -- V "strong_carryover_tag"
+}
 
 M.state = {}
 
@@ -40,7 +55,7 @@ local function attached_modifier(punc_char, verbatim)
     local free_modi_end = P "|" * punc * -wordchar
 
     local non_repeat_eol = whitespace ^ 0
-        * (line_ending - line_ending ^ 2)
+        * (line_ending - line_ending * paragraph_terminate)
         * whitespace ^ 0
     local inner_capture = Ct(choice {
         (#(punctuation - punc) * (V "Styled")),
@@ -98,6 +113,11 @@ local inline_grammar = P {
     } ^ 1),
     Styled = M.styled,
     Link = P(false),
+    delimiting_mod = choice {
+        block.week_delimiting_mod,
+        block.strong_delimiting_mod,
+        block.horizontal_rule,
+    },
 }
 
 local file_loc_pattern = P(true)
@@ -222,20 +242,9 @@ M.paragraph_segment = Ct(whitespace ^ 0 * choice {
 } ^ 1) / token.para_seg * empty_pat(function() M.state = {} end)
 
 local soft_break = line_ending / token.soft_break
-local paragraph_terminate = choice {
-    (whitespace ^ 0 * line_ending),
-    -- detached modifier starts
-    (whitespace ^ 0 * S "*-~>%" ^ 1 * whitespace),
-    (whitespace ^ 0 * choice {
-        P "^^",
-        P "$$",
-    } * line_ending),
-    V "delimiting_mod",
-    -- V "ranged_tag",
-    -- V "strong_carryover_tag"
-}
-M.paragraph_patt =
-    Ct(V "ParaSeg" * (soft_break * (V "ParaSeg" - paragraph_terminate)) ^ 0)
-M.paragraph = M.paragraph_patt / token.para
+M.paragraph_patt = (
+    V "ParaSeg" * (soft_break * (V "ParaSeg" - paragraph_terminate)) ^ 0
+)
+M.paragraph = Ct(M.paragraph_patt) / token.para
 
 return M

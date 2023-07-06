@@ -1,3 +1,18 @@
+local function flatten_table(tbl)
+    local res = {}
+    for _, val in ipairs(tbl) do
+        if type(val) == "table" then
+            local flattened = flatten_table(val)
+            for _, v in ipairs(flattened) do
+                table.insert(res, v)
+            end
+        else
+            table.insert(res, val)
+        end
+    end
+    return res
+end
+
 ---@type table<string, string|function>
 local M = {
     space = "Space",

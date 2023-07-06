@@ -44,6 +44,7 @@ G = P(grammar)
 
 function Reader(input, _reader_options)
     print "============[INPUT:]============"
+    pretty_print(_reader_options)
     print(input)
     print "============[PARSE:]============"
     local match = lpeg.match(G, tostring(input))

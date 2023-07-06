@@ -5,6 +5,7 @@ assert:add_formatter(
 )
 
 require "init"
+local p_doc = P(grammar)
 grammar[1] = "ParaSeg"
 local p = P(grammar)
 local t = require "token"
@@ -136,6 +137,37 @@ Intra:*word*:bold
                 t.str "Intra",
                 t.bold { t.str "word" },
                 t.str "bold",
+            }
+        )
+    end)
+    it("Repeated modifiers is treated as raw text", function()
+        local text = "*///example//*"
+        eq(
+            p:match(text),
+            t.para_seg {
+                t.bold {
+                    t.punc "/",
+                    t.punc "/",
+                    t.punc "/",
+                    t.str "example",
+                    t.punc "/",
+                    t.punc "/",
+                },
+            }
+        )
+    end)
+    it("Reset after detached modifier", function()
+        local text = [[
+- _:
+- _x_
+]]
+        eq(
+            p_doc:match(text),
+            t.pandoc {
+                t.bullet_list {
+                    { t.para { t.para_seg { t.punc "_", t.punc ":" } } },
+                    { t.para { t.para_seg { t.underline { t.str "x" } } } },
+                },
             }
         )
     end)

@@ -38,21 +38,6 @@ function _G.print_cap(...)
     return ...
 end
 
-function _G.flatten_table(tbl)
-    local res = {}
-    for _, val in ipairs(tbl) do
-        if type(val) == "table" then
-            local flattened = flatten_table(val)
-            for _, v in ipairs(flattened) do
-                table.insert(res, v)
-            end
-        else
-            table.insert(res, val)
-        end
-    end
-    return res
-end
-
 function _G.make_id_from_str(str)
     local replace_space = lpeg.S " \t\r\n" ^ 1 / "-"
     local p = whitespace ^ 0

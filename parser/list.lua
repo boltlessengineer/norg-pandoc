@@ -82,7 +82,7 @@ local list_sub = choice {
     Ct(V "bullet_list_item" ^ 1) / token.bullet_list,
     Ct(V "ordered_list_item" ^ 1) / token.ordered_list,
 }
-local list_item = (Ct(ext_cap * paragraph.paragraph_patt) / token.para)
+local list_item = Ct(ext_cap * paragraph.paragraph_patt) / token.para
 M.bullet_list_item = Ct(nest_item("-", list_item, list_lev, list_sub))
 M.ordered_list_item = Ct(nest_item("~", list_item, list_lev, list_sub))
 M.unordered_list = Ct(M.bullet_list_item ^ 1)
