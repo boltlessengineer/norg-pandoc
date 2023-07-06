@@ -3,12 +3,12 @@
 Custom pandoc reader for [Norg
 format](https://github.com/nvim-neorg/norg-specs).
 
-> NOTE: This is WIP project. May not work in some edge cases.
+> **NOTE** This is WIP project. May not work in some edge cases.
 
 ## Usage
 
 ``` bash
-   pandoc -f init.lua # more pandoc options
+pandoc --from=init.lua # more pandoc options
 ```
 
 ### Example: Convert norg file to markdown file
@@ -17,7 +17,7 @@ This is CI code used in this repo to convert Norg README file to
 Github-Flavored-Markdown
 
 ``` bash
-    pandoc --from=init.lua --to=gfm README.norg --output=README.md
+pandoc --from=init.lua --to=gfm README.norg --output=README.md
 ```
 
 ## why?
