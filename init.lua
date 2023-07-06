@@ -8,10 +8,15 @@ local list = require "parser.list"
 _G.grammar = {
     "Doc",
     Doc = Ct(choice {
-        (whitespace + line_ending),
         V "Block",
+        (whitespace + line_ending),
     } ^ 0) / token.pandoc,
-    Block = block.block,
+    Block = choice {
+        V "detached_modifier",
+        V "verbatim_ranged_tag",
+        V "delimiting_mod",
+        V "Para",
+    },
     Heading = block.heading,
     list = V "UnorderedList" + V "OrderedList",
     quote_item = list.quote_item,
@@ -44,10 +49,15 @@ G = P(grammar)
 
 function Reader(input, _reader_options)
     print "============[INPUT:]============"
-    pretty_print(_reader_options)
     print(input)
     print "============[PARSE:]============"
     local match = lpeg.match(G, tostring(input))
+    -- local match = pandoc.Pandoc {
+    --     pandoc.Para {
+    --         pandoc.RawInline("pdf", "HEADING"),
+    --         pandoc.RawInline("html", "<h1>heading</h1>"),
+    --     },
+    -- }
     print "============[RESULT]============"
     return match
 end

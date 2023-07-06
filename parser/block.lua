@@ -95,13 +95,24 @@ do
         * C((wordchar + punctuation) ^ 1)
         * Ct((whitespace ^ 1 * C((wordchar + punctuation) ^ 1)) ^ 0)
         * line_ending
-    M.verbatim_ranged_tag = _start
+    M.verbatim_ranged_tag = C(whitespace ^ 0 / string.len)
+        * _start
         * C((1 - _end) ^ 1)
         * _end
-        / function(name, param, content)
-            local class = name .. " "
-            if #param > 0 then
-                class = table.concat(param, " ")
+        / function(ws_ch, indent, name, param, content)
+            if name == "document.meta" then
+                -- TODO: remove this line and return parsed document
+                table.insert(param, 1, name)
+            elseif name ~= "code" then
+                table.insert(param, 1, name)
+            end
+            local class = table.concat(param, " ")
+            if indent > 0 then
+                local repl = (P(ws_ch) / "")
+                content = lpeg.match(
+                    Cs(repl * (line_ending * repl + 1) ^ 0),
+                    content
+                ) or content
             end
             return token.code_block(content, { class = class })
         end

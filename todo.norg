@@ -41,9 +41,9 @@
          How would this even work in other formats???
    - (x) Inline Link Targets
    - (?) Carryover Tags
-         We need to check the output type (html/md vs latex)
+         (use `pandoc.RawBlock` for this)
    - (-) Detached Modifier Extensions
-   - (-) Detached Modifier Suffix
+   - (-) Detached Modifier Suffix (`::`)
    - (x) Range-able Detached Modifiers (minus *table cells*)
    -- (x) Definition
    -- (x) Footnotes
