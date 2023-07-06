@@ -13,7 +13,7 @@
    - (x) Attached Modifiers
    - (x) Links (only URL type)
    - (x) Escape Char
-** ( ) Layer 2
+** (x) Layer 2
    - (x) Nestable Detached Modifiers
    -- (x) ordered / unordered lists
    -- (x) quotes
@@ -38,7 +38,7 @@
    - (x) Link Modifier (the `:` thing)
 ** ( ) Layer 3
    - ( ) Links (*timestamps*, *wikilinks*)
-   - ( ) Inline Link Targets
+   - (x) Inline Link Targets
    - ( ) Carryover Tags
    - (-) Detached Modifier Extensions
    - ( ) Detached Modifier Suffix
@@ -57,7 +57,8 @@
          @code norg
          $ Term : definition
          @end
-       %TODO: add todos%
+   - ( ) Attached Modifier Extensions
+   - ( ) inline math / variable
 ** ( ) Layer 5
    - ( ) *macros*
        %TODO: add todos%

@@ -30,7 +30,12 @@ local M = {
     end,
     horizontal_rule = "HorizontalRule",
     link = "Link",
+    inline_link_target = function(id, inline)
+        id = make_id_from_str(id)
+        return pandoc.Span(inline, { id = id, class = "target" })
+    end,
     code_block = "CodeBlock",
+    -- TODO: add class
     definition_text = "Span",
     definition_list = "DefinitionList",
     note = "Note",

@@ -24,7 +24,11 @@ _G.grammar = {
     ParaSeg = paragraph.paragraph_segment,
     Para = paragraph.paragraph,
     Styled = paragraph.styled,
-    Link = paragraph.link + paragraph.anchor,
+    Link = choice {
+        paragraph.link,
+        paragraph.anchor,
+        paragraph.inline_link_target,
+    },
     verbatim_ranged_tag = block.verbatim_ranged_tag,
     definition = block.definition_list,
     footnote = block.footnote,

@@ -131,20 +131,21 @@ local link_dest = P "{"
     }
     * B(non_space)
     * P "}"
-local link_desc = P(true)
-    * P "["
-    * #non_space
-    * Ct(choice {
-        V "Styled",
-        V "Link",
-        wordchar ^ 1 / token.str,
-        escape_sequence / token.punc,
-        punctuation / token.punc - P "]",
-        whitespace ^ 0 * line_ending * whitespace ^ 0 / token.soft_break,
-        whitespace ^ 1 / token.space,
-    } ^ 1)
-    * B(non_space)
-    * P "]"
+local function link_desc_inner(punc)
+    return P(true)
+        * #non_space
+        * Ct(choice {
+            V "Styled",
+            V "Link",
+            wordchar ^ 1 / token.str,
+            escape_sequence / token.punc,
+            punctuation / token.punc - P(punc),
+            whitespace ^ 0 * line_ending * whitespace ^ 0 / token.soft_break,
+            whitespace ^ 1 / token.space,
+        } ^ 1)
+        * B(non_space)
+end
+local link_desc = P "[" * link_desc_inner "]" * P "]"
 
 local function link_handler(file_loc, kind, raw_dest, desc)
     -- pretty_print(file_loc)
@@ -188,7 +189,6 @@ local anchors = {}
 M.anchor = C(link_desc)
     * link_dest ^ -1
     / function(raw_desc, desc, file_loc, kind, raw_dest)
-        -- TODO: create desc_id from desc
         local desc_id = make_id_from_str(raw_desc)
         if file_loc or raw_dest then
             local element = link_handler(file_loc, kind, raw_dest, desc)
@@ -202,6 +202,12 @@ M.anchor = C(link_desc)
             return element
         end
     end
+
+-- TODO: inline link targets
+M.inline_link_target = P "<"
+    * C(link_desc_inner ">")
+    * P ">"
+    / token.inline_link_target
 
 -- re-check preceding whitespaces for nested blocks
 M.paragraph_segment = Ct(whitespace ^ 0 * choice {
