@@ -152,16 +152,15 @@ local function link_handler(file_loc, kind, raw_dest, desc)
     -- pretty_print(kind)
     -- pretty_print(raw_dest)
     -- pretty_print(desc)
-    local target_str = raw_dest
+    local target_str = ""
     if file_loc then
         target_str = file_loc .. ".norg"
-        raw_dest = file_loc
     end
-    local desc_content = desc or raw_dest
+    local desc_content = desc or file_loc or raw_dest
     if kind then
         if kind == "/" then
         elseif kind:sub(1, 1) == "^" then
-            local title = make_id_from_str(target_str)
+            local title = make_id_from_str(raw_dest)
             local content = require("parser.block").footnotes[title]
             if content then
                 if desc then
@@ -172,14 +171,17 @@ local function link_handler(file_loc, kind, raw_dest, desc)
                 end
                 -- FIX: This doesn't work. `M.state` is only valid while parsing
             elseif M.state["^"] or M.state[","] then
-                return token.str(target_str)
+                return token.str(raw_dest)
             else
-                return token.superscript(target_str)
+                return token.superscript(raw_dest)
             end
         else
             desc_content = inline_grammar:match(raw_dest)
-            target_str = "#" .. make_id_from_str(target_str)
+            target_str = target_str .. "#" .. make_id_from_str(raw_dest)
         end
+    end
+    if string.len(target_str) == 0 then
+        target_str = raw_dest
     end
     return token.link(desc_content, target_str)
 end
