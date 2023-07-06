@@ -37,16 +37,19 @@
    --- (x) file (`/`)
    - (x) Link Modifier (the `:` thing)
 ** ( ) Layer 3
-   - ( ) Links (*timestamps*, *wikilinks*)
+   - (?) Links (*timestamps*, *wikilinks*)
+         How would this even work in other formats???
    - (x) Inline Link Targets
-   - ( ) Carryover Tags
+   - (?) Carryover Tags
+         We need to check the output type (html/md vs latex)
    - (-) Detached Modifier Extensions
-   - ( ) Detached Modifier Suffix
+   - (-) Detached Modifier Suffix
    - (x) Range-able Detached Modifiers (minus *table cells*)
    -- (x) Definition
    -- (x) Footnotes
    - (x) Link Modifier
 ** ( ) Layer 4
+   - ( ) extendable links, scoping
    - ( ) standard ranged tags (`\|comment`, etc.)
    - (?) table cells
          honestly, who use this?
