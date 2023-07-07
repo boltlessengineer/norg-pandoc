@@ -38,30 +38,4 @@ I'm not heading
             )
         end)
     end)
-    describe("Nestable (lists, quotes) >", function()
-        -- NOTE: tests on test/lists_spec.lua
-    end)
-    describe("Range-able (definitions, footnotes) >", function()
-        -- TODO: add some test when Link parsing is done
-        it("Definition", function()
-            local text = [[
-$ some word
-explain for some word
-]]
-            eq(
-                p:match(text),
-                t.pandoc {
-                    t.definition_list {
-                        {
-                            t.definition_text(
-                                t.para_seg(),
-                                { id = "some-word" }
-                            ),
-                            t.para { t.para_seg() },
-                        },
-                    },
-                }
-            )
-        end)
-    end)
 end)
