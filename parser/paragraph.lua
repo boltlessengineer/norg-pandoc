@@ -14,7 +14,7 @@ local paragraph_terminate = choice {
         P "$$",
     } * line_ending),
     V "delimiting_mod",
-    -- V "ranged_tag",
+    block.verbatim_ranged_tag,
     -- V "strong_carryover_tag"
 }
 

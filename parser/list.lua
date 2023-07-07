@@ -55,7 +55,7 @@ local function nest_item(ch, item, lev, sub)
     local sub_quit = empty_pat(function() lev.sub_start = false end)
     return (
         whitespace ^ 0
-        * Cmt(P(ch) ^ 1 / string.len, function(_str, _pos, count)
+        * Cmt(P(ch) ^ 1 / string.len, function(_, _, count)
             if count == lev:last() and not lev.sub_start then
                 return true
             elseif count > lev:last() then
@@ -79,15 +79,72 @@ end
 
 local list_lev, list_reset = nest_lev:new()
 local list_sub = choice {
-    Ct(V "bullet_list_item" ^ 1) / token.bullet_list,
     Ct(V "ordered_list_item" ^ 1) / token.ordered_list,
 }
-local list_item = Ct(ext_cap * paragraph.paragraph_patt) / token.para
-M.bullet_list_item = Ct(nest_item("-", list_item, list_lev, list_sub))
-M.ordered_list_item = Ct(nest_item("~", list_item, list_lev, list_sub))
-M.unordered_list = Ct(M.bullet_list_item ^ 1)
-    / token.bullet_list
-    * empty_pat(list_reset)
+local _list_item = Ct(ext_cap * paragraph.paragraph_patt) / token.para
+M.ordered_list_item = Ct(nest_item("~", _list_item, list_lev, list_sub))
+
+local lower_item_start = whitespace ^ 0
+    * Cmt(
+        P "-" ^ 1 / string.len,
+        function(_, _, count) return count <= list_lev:last() end
+    )
+
+local list_item = P(true)
+    * ext_cap
+    * choice {
+        Ct(seq {
+            P "::",
+            line_ending,
+            whitespace ^ 0,
+            (V "Block" * line_ending ^ 0 - lower_item_start) ^ 1,
+        }),
+        Ct(seq {
+            V "Para",
+            line_ending,
+            (V "UnorderedList") ^ -1,
+        }),
+    }
+    / function(e, tbl)
+        if not tbl then
+            return e
+        end
+        if tbl[1].t == "Para" then
+            -- HACK: find more smarter way
+            table.insert(tbl[1].content, 1, e[2])
+            table.insert(tbl[1].content, 1, e[1])
+        end
+        return tbl
+    end
+M.unordered_list = Ct(seq {
+    seq {
+        whitespace ^ 0,
+        Cmt(P "-" ^ 1 / string.len, function(_, _, count)
+            if count > list_lev:last() then
+                list_lev:push(count)
+                return true
+            end
+            return false
+        end),
+        whitespace ^ 1,
+        list_item,
+    },
+    seq {
+        whitespace ^ 0,
+        Cmt(P "-" ^ 1 / string.len, function(_, _, count)
+            if count > list_lev:last() then
+                list_lev:push(count)
+                return true
+            elseif count == list_lev:last() then
+                return true
+            end
+            return false
+        end),
+        whitespace ^ 1,
+        list_item,
+    } ^ 0,
+}) * empty_pat(function() list_lev:pop() end) / token.bullet_list
+
 M.ordered_list = Ct(M.ordered_list_item ^ 1)
     / token.ordered_list
     * empty_pat(list_reset)

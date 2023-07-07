@@ -15,6 +15,14 @@ function _G.choice(patts)
     return patt
 end
 
+function _G.seq(patts)
+    local patt = patts[1]
+    for i = 2, #patts do
+        patt = patt * patts[i]
+    end
+    return patt
+end
+
 ---empty pattern to do something when pattern is matched
 ---@param callback fun(str,num,...):any
 ---@return any

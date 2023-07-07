@@ -1,5 +1,6 @@
 * ( ) Code
   - ( ) add testing
+  -- (!) make test for pandoc itself
   -- (_) change test tool to something else (*busted*'s messages are hard to read)
   -- ( ) add more test cases (copy from tree-sitter's)
   - (x) remove pandoc dependency
