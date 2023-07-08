@@ -51,6 +51,7 @@ describe("Attached Modifiers >", function()
             t.para_seg {
                 t.bold {
                     t.para_seg { t.str "Bold" },
+                    t.soft_break(),
                     t.para_seg { t.str "text" },
                 },
             }
@@ -152,6 +153,7 @@ describe("Attached Modifiers >", function()
             t.para_seg {
                 t.bold {
                     t.para_seg { t.str "bold" },
+                    t.soft_break(),
                     t.para_seg { t.str "text" },
                 },
             }
@@ -228,10 +230,14 @@ Intra:*word*:bold
         eq(
             p:match(text),
             t.para_seg {
-                t.link(
-                    { t.str "not", t.space(), t.punc "*", t.str "bold" },
-                    "google.com"
-                ),
+                t.link({
+                    t.para_seg {
+                        t.str "not",
+                        t.space(),
+                        t.punc "*",
+                        t.str "bold",
+                    },
+                }, "google.com"),
                 t.punc "*",
                 t.punc "]",
             }
@@ -243,10 +249,16 @@ Intra:*word*:bold
             p:match(text),
             t.para_seg {
                 t.link({
-                    t.str "is",
-                    t.space(),
-                    t.bold {
-                        t.para_seg { t.str "bold", t.space(), t.punc "]" },
+                    t.para_seg {
+                        t.str "is",
+                        t.space(),
+                        t.bold {
+                            t.para_seg {
+                                t.str "bold",
+                                t.space(),
+                                t.punc "]",
+                            },
+                        },
                     },
                 }, "google.com"),
             }
@@ -257,10 +269,14 @@ Intra:*word*:bold
         eq(
             p:match(text),
             t.para_seg {
-                t.link(
-                    { t.str "not", t.space(), t.punc "`", t.str "code" },
-                    "google.com"
-                ),
+                t.link({
+                    t.para_seg {
+                        t.str "not",
+                        t.space(),
+                        t.punc "`",
+                        t.str "code",
+                    },
+                }, "google.com"),
                 t.punc "`",
                 t.punc "]",
             }

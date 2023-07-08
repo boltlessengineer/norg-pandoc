@@ -19,19 +19,21 @@ _G.grammar = {
     },
     Heading = block.heading,
     list = V "UnorderedList" + V "OrderedList",
-    quote_item = list.quote_item,
     quote = list.quote,
     UnorderedList = list.unordered_list,
     OrderedList = list.ordered_list,
-    detached_modifier = block.detached_modifier,
-    ParaSeg = paragraph.paragraph_segment,
-    Para = paragraph.paragraph,
-    Styled = paragraph.styled,
-    Link = choice {
-        paragraph.link,
-        paragraph.anchor,
-        paragraph.inline_link_target,
+    detached_modifier = choice {
+        -- structural
+        V "Heading",
+        -- nestable
+        V "list",
+        V "quote",
+        -- range-able
+        V "definition",
+        V "footnote",
     },
+    ParaSeg = paragraph.inline_segment,
+    Para = paragraph.inline / token.para,
     verbatim_ranged_tag = block.verbatim_ranged_tag,
     definition = block.definition_list,
     footnote = block.footnote,
@@ -40,6 +42,8 @@ _G.grammar = {
         block.strong_delimiting_mod,
         block.horizontal_rule,
     },
+
+    _paragraph = paragraph.inline,
 }
 
 -- _G.grammar = require("src.pegdebug").trace(grammar)

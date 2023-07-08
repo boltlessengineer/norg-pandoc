@@ -10,7 +10,7 @@ function _G.pretty_print(...) print(inspect(...)) end
 function _G.flatten_table(tbl)
     local res = {}
     for _, val in ipairs(tbl) do
-        if type(val) == "table" then
+        if type(val) == "table" and not val.t then
             local flattened = flatten_table(val)
             for _, v in ipairs(flattened) do
                 table.insert(res, v)

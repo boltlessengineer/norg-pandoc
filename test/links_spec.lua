@@ -32,7 +32,10 @@ describe("Links >", function()
         eq(
             p:match(text),
             t.para_seg {
-                t.link({ t.str "heading", t.space(), t.str "1" }, "#heading-1"),
+                t.link(
+                    { t.para_seg { t.str "heading", t.space(), t.str "1" } },
+                    "#heading-1"
+                ),
             }
         )
     end)
@@ -45,7 +48,10 @@ see {$ some word}.
             t.para_seg {
                 t.str "see",
                 t.space(),
-                t.link({ t.str "some", t.space(), t.str "word" }, "#some-word"),
+                t.link(
+                    { t.para_seg { t.str "some", t.space(), t.str "word" } },
+                    "#some-word"
+                ),
                 t.punc ".",
             }
         )
@@ -75,7 +81,7 @@ see {$ some word}.
                         t.str "see",
                         t.space(),
                         -- FIX: don't make superscript inside subscript
-                        t.superscript "my footnote",
+                        t.str "my footnote",
                     },
                 },
             }
@@ -90,7 +96,7 @@ see {$ some word}.
                     t.para_seg {
                         t.str "see",
                         t.space(),
-                        t.superscript "my footnote",
+                        t.str "my footnote",
                     },
                 },
             }
@@ -106,9 +112,13 @@ see {$ some word}.
             p:match(text),
             t.para_seg {
                 t.link({
-                    t.str "long",
+                    t.para_seg {
+                        t.str "long",
+                    },
                     t.soft_break(),
-                    t.str "heading",
+                    t.para_seg {
+                        t.str "heading",
+                    },
                 }, "#long-heading"),
             }
         )
@@ -171,10 +181,13 @@ o/file:}
             eq(
                 p:match(text),
                 t.para_seg {
-                    t.link(
-                        { t.str "my", t.space(), t.str "heading" },
-                        "path/to/file.norg#my-heading"
-                    ),
+                    t.link({
+                        t.para_seg {
+                            t.str "my",
+                            t.space(),
+                            t.str "heading",
+                        },
+                    }, "path/to/file.norg#my-heading"),
                 }
             )
         end)
@@ -188,11 +201,16 @@ o/file:}
             p:match(text),
             t.para_seg {
                 t.link({
-                    t.bold { t.para_seg { t.str "bold" } },
-                    t.space(),
-                    t.link({ t.str "github" }, "https://github.com"),
-                    t.space(),
-                    t.str "text",
+                    t.para_seg {
+                        t.bold { t.para_seg { t.str "bold" } },
+                        t.space(),
+                        t.link(
+                            { t.para_seg { t.str "github" } },
+                            "https://github.com"
+                        ),
+                        t.space(),
+                        t.str "text",
+                    },
                 }, "https://google.com"),
             }
         )

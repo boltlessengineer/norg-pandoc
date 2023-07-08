@@ -5,6 +5,8 @@ local token = require "token"
 
 local M = {}
 
+local function parse_cap(cap) return M.inline:match(cap) end
+
 local paragraph_terminate = choice {
     (whitespace ^ 0 * line_ending),
     -- detached modifier starts
@@ -13,7 +15,11 @@ local paragraph_terminate = choice {
         P "^^",
         P "$$",
     } * line_ending),
-    V "delimiting_mod",
+    choice {
+        block.week_delimiting_mod,
+        block.strong_delimiting_mod,
+        block.horizontal_rule,
+    },
     block.verbatim_ranged_tag,
     -- V "strong_carryover_tag"
 }
@@ -34,33 +40,33 @@ local paragraph_seg_patt = choice {
 M.paragraph_segment = whitespace ^ 0
     * Ct(paragraph_seg_patt ^ 1)
     / token.para_seg
-    * empty_pat(function() M.state = {} end)
 
 local soft_break = line_ending / token.soft_break
 M.paragraph = Ct(
-    V "ParaSeg" * (soft_break * (V "ParaSeg" - paragraph_terminate)) ^ 0
-) / token.para
+    V "_ParaSeg"
+        * whitespace ^ 0
+        * (soft_break * (V "_ParaSeg" - paragraph_terminate)) ^ 0
+)
 
 M.state = {}
 
 -- TODO: make Inline parsing as Group. parse after all higher precedences are captured
+-- ...but then how we handle nested attached modifiers?
+-- -> we can use same aproach. that will work
 
-local function attached_modifier(punc_char, verbatim, ignore_punc)
+local function attached_modifier(punc_char, verbatim)
     local punc = P(punc_char)
     local non_whitespace_char = wordchar + punctuation
-    local ignore = ignore_punc
-            and #-B(whitespace + line_ending_ch + P "\\") * P(ignore_punc)
-        or P(false)
 
     local pre = Cmt(P(true), function()
         if M.state[punc_char] then
             return false
         end
-        M.state[punc_char] = true
+        -- M.state[punc_char] = true
         return true
     end)
     local post = Cmt(P(true), function()
-        M.state[punc_char] = false
+        -- M.state[punc_char] = false
         return true
     end)
 
@@ -83,24 +89,33 @@ local function attached_modifier(punc_char, verbatim, ignore_punc)
     local free_modi_end = P "|" * punc * -wordchar
 
     local free_inner_capture = Ct(choice {
-        (wordchar + (punctuation - ignore - free_modi_end)) ^ 1 / token.str,
+        (wordchar + (punctuation - free_modi_end)) ^ 1 / token.str,
         non_repeat_eol / token.soft_break,
         whitespace / token.space,
     } ^ 1)
     -- TODO: parse as verbatim first, and capture as paragraph_segments
-    local inner_capture = Ct(choice {
-        non_repeat_eol,
-        Ct((paragraph_seg_patt - ignore - modi_end) ^ 1) / token.para_seg,
-    } ^ 1)
+    local inner_capture = C(choice {
+        wordchar ^ 1,
+        escape_sequence ^ 1,
+        V "Styled",
+        V "Link",
+        (punctuation - modi_end) ^ 1,
+        line_ending * whitespace ^ 0 * #-line_ending,
+        whitespace ^ 1,
+    } ^ 1) / function(cap)
+        M.state[punc_char] = true
+        local match = M.inline:match(cap)
+        M.state[punc_char] = false
+        return match
+    end
     if verbatim then
         free_inner_capture = C(choice {
-            (wordchar + (punctuation - ignore - free_modi_end)) ^ 1,
+            (wordchar + (punctuation - free_modi_end)) ^ 1,
             non_repeat_eol,
             whitespace,
         } ^ 1)
         inner_capture = C(choice {
-            (wordchar + escape_sequence + (punctuation - ignore - modi_end))
-                ^ 1,
+            (wordchar + escape_sequence + (punctuation - modi_end)) ^ 1,
             non_repeat_eol,
             whitespace,
         } ^ 1)
@@ -111,40 +126,18 @@ local function attached_modifier(punc_char, verbatim, ignore_punc)
     }
 end
 
-local function make_styled(ignore_punc)
-    return choice {
-        attached_modifier("*", false, ignore_punc) / token.bold,
-        attached_modifier("/", false, ignore_punc) / token.italic,
-        attached_modifier("_", false, ignore_punc) / token.underline,
-        attached_modifier("-", false, ignore_punc) / token.strikethrough,
-        attached_modifier("!", false, ignore_punc) / token.spoiler,
-        attached_modifier("^", false, ignore_punc) / token.superscript,
-        attached_modifier(",", false, ignore_punc) / token.subscript,
-        attached_modifier("`", true, ignore_punc) / token.inline_code,
-        attached_modifier("%", false, ignore_punc) / token.null_modifier,
-        attached_modifier("$", true, ignore_punc) / token.inline_math,
-        attached_modifier("&", true, ignore_punc) / token.variable,
-    }
-end
-
-M.styled = make_styled()
-
-local inline_grammar = P {
-    Ct(choice {
-        V "Styled",
-        wordchar ^ 1 / token.str,
-        escape_sequence / token.punc,
-        punctuation / token.punc,
-        whitespace ^ 0 * line_ending * whitespace ^ 0 / token.soft_break,
-        whitespace ^ 1 / token.space,
-    } ^ 1),
-    Styled = M.styled,
-    Link = P(false),
-    delimiting_mod = choice {
-        block.week_delimiting_mod,
-        block.strong_delimiting_mod,
-        block.horizontal_rule,
-    },
+M.styled = choice {
+    attached_modifier("*", false) / token.bold,
+    attached_modifier("/", false) / token.italic,
+    attached_modifier("_", false) / token.underline,
+    attached_modifier("-", false) / token.strikethrough,
+    attached_modifier("!", false) / token.spoiler,
+    attached_modifier("^", false) / token.superscript,
+    attached_modifier(",", false) / token.subscript,
+    attached_modifier("`", true) / token.inline_code,
+    attached_modifier("%", false) / token.null_modifier,
+    attached_modifier("$", true) / token.inline_math,
+    attached_modifier("&", true) / token.variable,
 }
 
 local file_loc_pattern = P(true)
@@ -181,15 +174,16 @@ local link_dest = P "{"
 local function link_desc_inner(punc)
     return P(true)
         * #non_space
-        * Ct(choice {
-            make_styled(punc),
+        * C(choice {
+            wordchar ^ 1,
+            escape_sequence,
             V "Link",
-            wordchar ^ 1 / token.str,
-            escape_sequence / token.punc,
-            punctuation / token.punc - P(punc),
-            whitespace ^ 0 * line_ending * whitespace ^ 0 / token.soft_break,
-            whitespace ^ 1 / token.space,
+            punctuation - B(non_space) * P(punc),
+            line_ending * whitespace ^ 0 * #-line_ending,
+            whitespace ^ 1,
         } ^ 1)
+        / parse_cap
+        / flatten_table
         * B(non_space)
 end
 local link_desc = P "[" * link_desc_inner "]" * P "]"
@@ -223,7 +217,7 @@ local function link_handler(file_loc, kind, raw_dest, desc)
                 return token.superscript(raw_dest)
             end
         else
-            desc_content = inline_grammar:match(raw_dest)
+            desc_content = M.inline:match(raw_dest)
             target_str = target_str .. "#" .. make_id_from_str(raw_dest)
         end
     end
@@ -256,5 +250,20 @@ M.inline_link_target = P "<"
     * C(link_desc_inner ">")
     * P ">"
     / token.inline_link_target
+
+local group = {
+    "_Para",
+    _Para = M.paragraph,
+    _ParaSeg = M.paragraph_segment,
+    Styled = M.styled,
+    Link = choice {
+        M.link,
+        M.anchor,
+        M.inline_link_target,
+    },
+}
+M.inline = P(group)
+group[1] = "_ParaSeg"
+M.inline_segment = P(group)
 
 return M

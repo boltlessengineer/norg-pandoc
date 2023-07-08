@@ -19,22 +19,25 @@ local function handle_ext(cap, str, content)
     for _, e in ipairs(cap) do
         if e == "x" then
             content = {
-                pandoc.RawInline("html", "<label><input type=\"checkbox\" checked>"),
+                pandoc.RawInline(
+                    "html",
+                    '<label><input type="checkbox" checked>'
+                ),
                 pandoc.RawInline("latex", "$\\boxtimes$"),
                 pandoc.Space(),
                 table.unpack(content),
             }
-            content[#content+1] = pandoc.Space()
-            content[#content+1] = pandoc.RawInline("html", "</label>")
+            content[#content + 1] = pandoc.Space()
+            content[#content + 1] = pandoc.RawInline("html", "</label>")
         else
             content = {
-                pandoc.RawInline("html", "<label><input type=\"checkbox\">"),
+                pandoc.RawInline("html", '<label><input type="checkbox">'),
                 pandoc.RawInline("latex", "$\\square$"),
                 pandoc.Space(),
                 table.unpack(content),
             }
-            content[#content+1] = pandoc.Space()
-            content[#content+1] = pandoc.RawInline("html", "</label>")
+            content[#content + 1] = pandoc.Space()
+            content[#content + 1] = pandoc.RawInline("html", "</label>")
         end
     end
     return str, content

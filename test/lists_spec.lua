@@ -5,7 +5,7 @@ assert:add_formatter(
 
 local t = require "token"
 -- we don't care about paragraphs in this test
-t.para = function() return { _t = "para" } end
+t.para = function() return { t = "para" } end
 require "init"
 local p = P(grammar)
 

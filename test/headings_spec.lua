@@ -9,7 +9,7 @@ end
 
 local t = require "token"
 -- we don't care about paragraphs in this test
-t.para_seg = function() return { _t = "ParaSeg" } end
+t.para_seg = function() return { t = "ParaSeg" } end
 require "init"
 local p = P(grammar)
 
