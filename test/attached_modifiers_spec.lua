@@ -223,7 +223,7 @@ Intra:*word*:bold
             }
         )
     end)
-    it("Precedence between linkables", function()
+    it("Precedence between linkables (1)", function()
         local text = "{google.com}[not *bold]*]"
         eq(
             p:match(text),
@@ -233,6 +233,35 @@ Intra:*word*:bold
                     "google.com"
                 ),
                 t.punc "*",
+                t.punc "]",
+            }
+        )
+    end)
+    it("Precedence between linkables (2)", function()
+        local text = "{google.com}[is *bold ]*]"
+        eq(
+            p:match(text),
+            t.para_seg {
+                t.link({
+                    t.str "is",
+                    t.space(),
+                    t.bold {
+                        t.para_seg { t.str "bold", t.space(), t.punc "]" },
+                    },
+                }, "google.com"),
+            }
+        )
+    end)
+    it("Precedence between linkables (verbatim)", function()
+        local text = "{google.com}[not `code]`]"
+        eq(
+            p:match(text),
+            t.para_seg {
+                t.link(
+                    { t.str "not", t.space(), t.punc "`", t.str "code" },
+                    "google.com"
+                ),
+                t.punc "`",
                 t.punc "]",
             }
         )

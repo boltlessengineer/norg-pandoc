@@ -31,7 +31,8 @@ local paragraph_seg_patt = choice {
 }
 
 -- re-check preceding whitespaces for nested blocks
-M.paragraph_segment = Ct(whitespace ^ 0 * paragraph_seg_patt ^ 1)
+M.paragraph_segment = whitespace ^ 0
+    * Ct(paragraph_seg_patt ^ 1)
     / token.para_seg
     * empty_pat(function() M.state = {} end)
 
@@ -42,10 +43,14 @@ M.paragraph = Ct(
 
 M.state = {}
 
+-- TODO: make Inline parsing as Group. parse after all higher precedences are captured
+
 local function attached_modifier(punc_char, verbatim, ignore_punc)
     local punc = P(punc_char)
     local non_whitespace_char = wordchar + punctuation
-    ignore_punc = ignore_punc or false
+    local ignore = ignore_punc
+            and #-B(whitespace + line_ending_ch + P "\\") * P(ignore_punc)
+        or P(false)
 
     local pre = Cmt(P(true), function()
         if M.state[punc_char] then
@@ -78,23 +83,24 @@ local function attached_modifier(punc_char, verbatim, ignore_punc)
     local free_modi_end = P "|" * punc * -wordchar
 
     local free_inner_capture = Ct(choice {
-        (wordchar + (punctuation - free_modi_end)) ^ 1 / token.str,
+        (wordchar + (punctuation - ignore - free_modi_end)) ^ 1 / token.str,
         non_repeat_eol / token.soft_break,
         whitespace / token.space,
     } ^ 1)
+    -- TODO: parse as verbatim first, and capture as paragraph_segments
     local inner_capture = Ct(choice {
         non_repeat_eol,
-        Ct((paragraph_seg_patt - P(ignore_punc) - modi_end) ^ 1)
-            / token.para_seg,
+        Ct((paragraph_seg_patt - ignore - modi_end) ^ 1) / token.para_seg,
     } ^ 1)
     if verbatim then
         free_inner_capture = C(choice {
-            (wordchar + (punctuation - free_modi_end)) ^ 1,
+            (wordchar + (punctuation - ignore - free_modi_end)) ^ 1,
             non_repeat_eol,
             whitespace,
         } ^ 1)
         inner_capture = C(choice {
-            (wordchar + escape_sequence + (#-modi_end * punctuation)) ^ 1,
+            (wordchar + escape_sequence + (punctuation - ignore - modi_end))
+                ^ 1,
             non_repeat_eol,
             whitespace,
         } ^ 1)

@@ -41,8 +41,10 @@
    - (?) Links (*timestamps*, *wikilinks*)
          How would this even work in other formats???
    - (x) Inline Link Targets
-   - (?) Carryover Tags
+   - (-) Carryover Tags
          (use `pandoc.RawBlock` for this)
+   -- ( ) week
+   -- ( ) strong
    - (?) Detached Modifier Extensions
    -- (x) basic `(x)` and `( )` todo item
    -- (?) advanced todo items (but how?)
