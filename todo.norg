@@ -43,7 +43,9 @@
    - (x) Inline Link Targets
    - (?) Carryover Tags
          (use `pandoc.RawBlock` for this)
-   - (-) Detached Modifier Extensions
+   - (?) Detached Modifier Extensions
+   -- (x) basic `(x)` and `( )` todo item
+   -- (?) advanced todo items (but how?)
    - (x) Detached Modifier Suffix
    -- (x) slide (`:`)
    -- (x) indent segment (`::`)
@@ -59,6 +61,7 @@
    - (x) Free-form attached modifiers
    - ( ) ::
          Intersecting Modifiers
+
          This would enable code like:
          @code norg
          $ Term : definition

@@ -8,10 +8,43 @@ M.week_delimiting_mod = P "-" ^ 2 * line_ending
 M.strong_delimiting_mod = P "=" ^ 2 * line_ending
 M.horizontal_rule = P "_" ^ 2 * line_ending / token.horizontal_rule
 
+local ext_wordchar = (wordchar + punctuation - (P ")" - P "|")) ^ 1
+local ext_ch = S " x?!+-=_@#<>"
+local ext_item = C(ext_ch * (whitespace * ext_wordchar) ^ 0)
+local ext =
+    Ct(P "(" * ext_item * (P "|" * ext_item) ^ 0 * P ")" * whitespace ^ 1)
+local function handle_ext(cap, str, content)
+    for _, e in ipairs(cap) do
+        if e == "x" then
+            content = {
+                pandoc.RawInline("html", "<label><input type=\"checkbox\" checked>"),
+                pandoc.RawInline("latex", "$\\boxtimes$"),
+                pandoc.Space(),
+                table.unpack(content),
+            }
+            content[#content+1] = pandoc.Space()
+            content[#content+1] = pandoc.RawInline("html", "</label>")
+        else
+            content = {
+                pandoc.RawInline("html", "<label><input type=\"checkbox\">"),
+                pandoc.RawInline("latex", "$\\square$"),
+                pandoc.Space(),
+                table.unpack(content),
+            }
+            content[#content+1] = pandoc.Space()
+            content[#content+1] = pandoc.RawInline("html", "</label>")
+        end
+    end
+    return str, content
+end
+
 M.heading = P(true)
     * (P "*" ^ 1 / string.len)
     * whitespace ^ 1
-    * C(V "ParaSeg")
+    * choice {
+        ext * C(V "ParaSeg") / handle_ext,
+        C(V "ParaSeg"),
+    }
     * line_ending
     / function(lev, str, content)
         local id = make_id_from_str(str)

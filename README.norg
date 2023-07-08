@@ -3,7 +3,7 @@
 * norg-pandoc
   Custom pandoc reader for {https://github.com/nvim-neorg/norg-specs}[Norg format].
 
-  > *NOTE*
+  > *NOTE*:
     This is WIP project. May not work in some edge cases.
 
 ** Usage
