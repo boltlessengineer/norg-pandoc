@@ -15,7 +15,7 @@ _G.grammar = {
         V "detached_modifier",
         V "verbatim_ranged_tag",
         V "delimiting_mod",
-        V "Para",
+        V "Para" * line_ending,
     },
     Heading = block.heading,
     list = V "UnorderedList" + V "OrderedList",

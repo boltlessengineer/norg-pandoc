@@ -12,6 +12,7 @@ M.heading = P(true)
     * (P "*" ^ 1 / string.len)
     * whitespace ^ 1
     * C(V "ParaSeg")
+    * line_ending
     / function(lev, str, content)
         local id = make_id_from_str(str)
         return lev, content, id
@@ -25,6 +26,7 @@ do
             * C(V "ParaSeg")
             * (line_ending * whitespace ^ 0) ^ 1
             * V "Para"
+            * line_ending
     end
 
     local function rangeable_ranged_capture(prefix_ch)
@@ -117,12 +119,5 @@ do
             return token.code_block(content, { class = class })
         end
 end
-
-M.block = choice {
-    V "detached_modifier",
-    V "verbatim_ranged_tag",
-    V "delimiting_mod",
-    V "Para",
-}
 
 return M

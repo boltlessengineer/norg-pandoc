@@ -242,9 +242,8 @@ M.paragraph_segment = Ct(whitespace ^ 0 * choice {
 } ^ 1) / token.para_seg * empty_pat(function() M.state = {} end)
 
 local soft_break = line_ending / token.soft_break
-M.paragraph_patt = (
+M.paragraph = Ct(
     V "ParaSeg" * (soft_break * (V "ParaSeg" - paragraph_terminate)) ^ 0
-)
-M.paragraph = Ct(M.paragraph_patt) / token.para
+) / token.para
 
 return M

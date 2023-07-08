@@ -44,8 +44,8 @@
    - (?) Carryover Tags
          (use `pandoc.RawBlock` for this)
    - (-) Detached Modifier Extensions
-   - (-) Detached Modifier Suffix
-   -- (-) slide (`:`)
+   - (x) Detached Modifier Suffix
+   -- (x) slide (`:`)
    -- (x) indent segment (`::`)
    - (x) Range-able Detached Modifiers (minus *table cells*)
    -- (x) Definition

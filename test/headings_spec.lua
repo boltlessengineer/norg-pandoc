@@ -16,7 +16,9 @@ local p = P(grammar)
 describe("Detached Modifiers >", function()
     describe("Structural (headings) >", function()
         it("Level 1 heading", function()
-            local text = "* Heading Title!"
+            local text = [[
+* Heading Title!
+]]
             eq(
                 p:match(text),
                 t.pandoc {

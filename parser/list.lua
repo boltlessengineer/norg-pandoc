@@ -55,8 +55,15 @@ local function nestable_modi(ch, nestable)
         * ext_cap
         * choice {
             Ct(seq {
-                P "::",
-                line_ending,
+                P ":" * line_ending,
+                whitespace ^ 0,
+                (V "Block" - lower_item_start) ^ 1,
+                empty_pat(
+                    function(str, pos) pretty_print(str:sub(pos, pos + 2)) end
+                ),
+            }),
+            Ct(seq {
+                P "::" * line_ending,
                 whitespace ^ 0,
                 (V "Block" * line_ending ^ 0 - lower_item_start) ^ 1,
             }),
