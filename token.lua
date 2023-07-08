@@ -1,16 +1,9 @@
-local function flatten_table(tbl)
-    local res = {}
-    for _, val in ipairs(tbl) do
-        if type(val) == "table" then
-            local flattened = flatten_table(val)
-            for _, v in ipairs(flattened) do
-                table.insert(res, v)
-            end
-        else
-            table.insert(res, val)
-        end
+require "globals"
+
+local function flatten(obj)
+    return function(content, ...)
+        return pandoc[obj](flatten_table(content), ...)
     end
-    return res
 end
 
 ---@type table<string, string|function>
@@ -20,7 +13,7 @@ local M = {
     line_break = "LineBreak",
     str = "Str",
     punc = "Str",
-    para = function(content) return pandoc.Para(flatten_table(content)) end,
+    para = flatten "Para",
     para_seg = function(...) return ... end,
     inlines = "Inlines",
     bullet_list = "BulletList",
@@ -28,15 +21,15 @@ local M = {
     quote = "BlockQuote",
     pandoc = "Pandoc",
     heading = "Header",
-    bold = "Strong",
-    italic = "Emph",
-    underline = "Underline",
-    strikethrough = "Strikeout",
+    bold = flatten "Strong",
+    italic = flatten "Emph",
+    underline = flatten "Underline",
+    strikethrough = flatten "Strikeout",
     spoiler = function(inline)
-        return pandoc.Span(inline, { class = "spoiler" })
+        return pandoc.Span(flatten_table(inline), { class = "spoiler" })
     end,
-    superscript = "Superscript",
-    subscript = "Subscript",
+    superscript = flatten "Superscript",
+    subscript = flatten "Subscript",
     inline_code = "Code",
     null_modifier = function() return nil end,
     inline_math = function(text) return pandoc.Math("InlineMath", text) end,

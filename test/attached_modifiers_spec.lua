@@ -18,7 +18,7 @@ describe("Attached Modifiers >", function()
             t.para_seg {
                 t.str "A",
                 t.space(),
-                t.bold { t.str "bold" },
+                t.bold { t.para_seg { t.str "bold" } },
                 t.space(),
                 t.str "word",
             }
@@ -28,7 +28,9 @@ describe("Attached Modifiers >", function()
         local text = "*Bold text*"
         eq(
             p:match(text),
-            t.para_seg { t.bold { t.str "Bold", t.space(), t.str "text" } }
+            t.para_seg {
+                t.bold { t.para_seg { t.str "Bold", t.space(), t.str "text" } },
+            }
         )
     end)
     it("Bold text with comma and period", function()
@@ -37,7 +39,7 @@ describe("Attached Modifiers >", function()
             p:match(text),
             t.para_seg {
                 t.punc ".",
-                t.bold { t.str "Bold", t.space(), t.str "text" },
+                t.bold { t.para_seg { t.str "Bold", t.space(), t.str "text" } },
                 t.punc ",",
             }
         )
@@ -46,7 +48,12 @@ describe("Attached Modifiers >", function()
         local text = "*Bold\ntext*"
         eq(
             p:match(text),
-            t.para_seg { t.bold { t.str "Bold", t.soft_break(), t.str "text" } }
+            t.para_seg {
+                t.bold {
+                    t.para_seg { t.str "Bold" },
+                    t.para_seg { t.str "text" },
+                },
+            }
         )
     end)
     it("Bold and italic text", function()
@@ -54,7 +61,17 @@ describe("Attached Modifiers >", function()
         eq(
             p:match(text),
             t.para_seg {
-                t.bold { t.italic { t.str "Bold", t.space(), t.str "italic" } },
+                t.bold {
+                    t.para_seg {
+                        t.italic {
+                            t.para_seg {
+                                t.str "Bold",
+                                t.space(),
+                                t.str "italic",
+                            },
+                        },
+                    },
+                },
             }
         )
     end)
@@ -64,11 +81,19 @@ describe("Attached Modifiers >", function()
             p:match(text),
             t.para_seg {
                 t.bold {
-                    t.italic { t.str "Bold", t.space(), t.str "italic" },
-                    t.space(),
-                    t.str "only",
-                    t.space(),
-                    t.str "bold",
+                    t.para_seg {
+                        t.italic {
+                            t.para_seg {
+                                t.str "Bold",
+                                t.space(),
+                                t.str "italic",
+                            },
+                        },
+                        t.space(),
+                        t.str "only",
+                        t.space(),
+                        t.str "bold",
+                    },
                 },
             }
         )
@@ -81,13 +106,15 @@ describe("Attached Modifiers >", function()
                 t.str "Text",
                 t.space(),
                 t.bold {
-                    t.italic { t.str "with" },
-                    t.space(),
-                    t.underline { t.str "different" },
-                    t.space(),
-                    t.superscript { t.str "markup" },
-                    t.space(),
-                    t.spoiler { t.str "types" },
+                    t.para_seg {
+                        t.italic { t.para_seg { t.str "with" } },
+                        t.space(),
+                        t.underline { t.para_seg { t.str "different" } },
+                        t.space(),
+                        t.superscript { t.para_seg { t.str "markup" } },
+                        t.space(),
+                        t.spoiler { t.para_seg { t.str "types" } },
+                    },
                 },
             }
         )
@@ -98,15 +125,19 @@ describe("Attached Modifiers >", function()
             p:match(text),
             t.para_seg {
                 t.bold {
-                    t.italic {
-                        t.punc "*",
-                        t.str "ignore",
-                        t.punc "*",
+                    t.para_seg {
+                        t.italic {
+                            t.para_seg {
+                                t.punc "*",
+                                t.str "ignore",
+                                t.punc "*",
+                                t.space(),
+                                t.str "italic",
+                            },
+                        },
                         t.space(),
-                        t.str "italic",
+                        t.str "bold",
                     },
-                    t.space(),
-                    t.str "bold",
                 },
             }
         )
@@ -120,9 +151,8 @@ describe("Attached Modifiers >", function()
             p:match(text),
             t.para_seg {
                 t.bold {
-                    t.str "bold",
-                    t.soft_break(),
-                    t.str "text",
+                    t.para_seg { t.str "bold" },
+                    t.para_seg { t.str "text" },
                 },
             }
         )
@@ -149,7 +179,7 @@ Intra:*word*:bold
             p:match(text),
             t.para_seg {
                 t.str "Intra",
-                t.bold { t.str "word" },
+                t.bold { t.para_seg { t.str "word" } },
                 t.str "bold",
             }
         )
@@ -160,12 +190,14 @@ Intra:*word*:bold
             p:match(text),
             t.para_seg {
                 t.bold {
-                    t.punc "/",
-                    t.punc "/",
-                    t.punc "/",
-                    t.str "example",
-                    t.punc "/",
-                    t.punc "/",
+                    t.para_seg {
+                        t.punc "/",
+                        t.punc "/",
+                        t.punc "/",
+                        t.str "example",
+                        t.punc "/",
+                        t.punc "/",
+                    },
                 },
             }
         )
@@ -180,8 +212,28 @@ Intra:*word*:bold
             t.pandoc {
                 t.bullet_list {
                     { t.para { t.para_seg { t.punc "_", t.punc ":" } } },
-                    { t.para { t.para_seg { t.underline { t.str "x" } } } },
+                    {
+                        t.para {
+                            t.para_seg {
+                                t.underline { t.para_seg { t.str "x" } },
+                            },
+                        },
+                    },
                 },
+            }
+        )
+    end)
+    it("Precedence between linkables", function()
+        local text = "{google.com}[not *bold]*]"
+        eq(
+            p:match(text),
+            t.para_seg {
+                t.link(
+                    { t.str "not", t.space(), t.punc "*", t.str "bold" },
+                    "google.com"
+                ),
+                t.punc "*",
+                t.punc "]",
             }
         )
     end)

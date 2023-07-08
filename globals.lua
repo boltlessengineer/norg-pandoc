@@ -7,6 +7,21 @@ _G.inspect = require "src.inspect"
 
 function _G.pretty_print(...) print(inspect(...)) end
 
+function _G.flatten_table(tbl)
+    local res = {}
+    for _, val in ipairs(tbl) do
+        if type(val) == "table" then
+            local flattened = flatten_table(val)
+            for _, v in ipairs(flattened) do
+                table.insert(res, v)
+            end
+        else
+            table.insert(res, val)
+        end
+    end
+    return res
+end
+
 function _G.choice(patts)
     local patt = patts[1]
     for i = 2, #patts do

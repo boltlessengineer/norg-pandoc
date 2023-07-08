@@ -33,7 +33,7 @@ local function pretty_table_inline(tb)
         res = res .. lead .. v_str
     end
     if tb.t then
-        return table.concat { tb.t, res ~= "" and res or nil }
+        return table.concat({ tb.t, res ~= "" and res or nil }, " ")
     else
         return "[ " .. res .. " ]"
     end

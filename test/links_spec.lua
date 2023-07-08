@@ -71,10 +71,12 @@ see {$ some word}.
             p:match(text),
             t.para_seg {
                 t.superscript {
-                    t.str "see",
-                    t.space(),
-                    -- FIX: don't make superscript inside subscript
-                    t.superscript "my footnote",
+                    t.para_seg {
+                        t.str "see",
+                        t.space(),
+                        -- FIX: don't make superscript inside subscript
+                        t.superscript "my footnote",
+                    },
                 },
             }
         )
@@ -85,9 +87,11 @@ see {$ some word}.
             p:match(text),
             t.para_seg {
                 t.subscript {
-                    t.str "see",
-                    t.space(),
-                    t.superscript "my footnote",
+                    t.para_seg {
+                        t.str "see",
+                        t.space(),
+                        t.superscript "my footnote",
+                    },
                 },
             }
         )
@@ -184,7 +188,7 @@ o/file:}
             p:match(text),
             t.para_seg {
                 t.link({
-                    t.bold { t.str "bold" },
+                    t.bold { t.para_seg { t.str "bold" } },
                     t.space(),
                     t.link({ t.str "github" }, "https://github.com"),
                     t.space(),

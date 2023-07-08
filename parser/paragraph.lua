@@ -18,11 +18,34 @@ local paragraph_terminate = choice {
     -- V "strong_carryover_tag"
 }
 
+local non_repeat_eol = whitespace ^ 0
+    * (line_ending - line_ending * paragraph_terminate)
+    * whitespace ^ 0
+local paragraph_seg_patt = choice {
+    V "Link",
+    V "Styled",
+    wordchar ^ 1 / token.str,
+    escape_sequence / token.punc,
+    punctuation / token.punc,
+    (whitespace - non_repeat_eol) ^ 1 / token.space,
+}
+
+-- re-check preceding whitespaces for nested blocks
+M.paragraph_segment = Ct(whitespace ^ 0 * paragraph_seg_patt ^ 1)
+    / token.para_seg
+    * empty_pat(function() M.state = {} end)
+
+local soft_break = line_ending / token.soft_break
+M.paragraph = Ct(
+    V "ParaSeg" * (soft_break * (V "ParaSeg" - paragraph_terminate)) ^ 0
+) / token.para
+
 M.state = {}
 
-local function attached_modifier(punc_char, verbatim)
+local function attached_modifier(punc_char, verbatim, ignore_punc)
     local punc = P(punc_char)
     local non_whitespace_char = wordchar + punctuation
+    ignore_punc = ignore_punc or false
 
     local pre = Cmt(P(true), function()
         if M.state[punc_char] then
@@ -54,26 +77,19 @@ local function attached_modifier(punc_char, verbatim)
     local free_modi_start = (#-B(wordchar) * punc * P "|")
     local free_modi_end = P "|" * punc * -wordchar
 
-    local non_repeat_eol = whitespace ^ 0
-        * (line_ending - line_ending * paragraph_terminate)
-        * whitespace ^ 0
-    local inner_capture = Ct((choice {
-        V "Link",
-        V "Styled",
-        wordchar ^ 1 / token.str,
-        escape_sequence / token.punc,
-        punctuation / token.punc,
-        non_repeat_eol / token.soft_break,
-        whitespace / token.space,
-    } - modi_end) ^ 1)
     local free_inner_capture = Ct(choice {
-        (wordchar + (#-free_modi_end * punctuation)) ^ 1 / token.str,
-        whitespace / token.space,
+        (wordchar + (punctuation - free_modi_end)) ^ 1 / token.str,
         non_repeat_eol / token.soft_break,
+        whitespace / token.space,
+    } ^ 1)
+    local inner_capture = Ct(choice {
+        non_repeat_eol,
+        Ct((paragraph_seg_patt - P(ignore_punc) - modi_end) ^ 1)
+            / token.para_seg,
     } ^ 1)
     if verbatim then
         free_inner_capture = C(choice {
-            (wordchar + (#-free_modi_end * punctuation)) ^ 1,
+            (wordchar + (punctuation - free_modi_end)) ^ 1,
             non_repeat_eol,
             whitespace,
         } ^ 1)
@@ -89,19 +105,23 @@ local function attached_modifier(punc_char, verbatim)
     }
 end
 
-M.styled = choice {
-    attached_modifier "*" / token.bold,
-    attached_modifier "/" / token.italic,
-    attached_modifier "_" / token.underline,
-    attached_modifier "-" / token.strikethrough,
-    attached_modifier "!" / token.spoiler,
-    attached_modifier "^" / token.superscript,
-    attached_modifier "," / token.subscript,
-    attached_modifier("`", true) / token.inline_code,
-    attached_modifier "%" / token.null_modifier,
-    attached_modifier("$", true) / token.inline_math,
-    attached_modifier("&", true) / token.variable,
-}
+local function make_styled(ignore_punc)
+    return choice {
+        attached_modifier("*", false, ignore_punc) / token.bold,
+        attached_modifier("/", false, ignore_punc) / token.italic,
+        attached_modifier("_", false, ignore_punc) / token.underline,
+        attached_modifier("-", false, ignore_punc) / token.strikethrough,
+        attached_modifier("!", false, ignore_punc) / token.spoiler,
+        attached_modifier("^", false, ignore_punc) / token.superscript,
+        attached_modifier(",", false, ignore_punc) / token.subscript,
+        attached_modifier("`", true, ignore_punc) / token.inline_code,
+        attached_modifier("%", false, ignore_punc) / token.null_modifier,
+        attached_modifier("$", true, ignore_punc) / token.inline_math,
+        attached_modifier("&", true, ignore_punc) / token.variable,
+    }
+end
+
+M.styled = make_styled()
 
 local inline_grammar = P {
     Ct(choice {
@@ -156,7 +176,7 @@ local function link_desc_inner(punc)
     return P(true)
         * #non_space
         * Ct(choice {
-            V "Styled",
+            make_styled(punc),
             V "Link",
             wordchar ^ 1 / token.str,
             escape_sequence / token.punc,
@@ -230,20 +250,5 @@ M.inline_link_target = P "<"
     * C(link_desc_inner ">")
     * P ">"
     / token.inline_link_target
-
--- re-check preceding whitespaces for nested blocks
-M.paragraph_segment = Ct(whitespace ^ 0 * choice {
-    V "Link",
-    V "Styled",
-    wordchar ^ 1 / token.str,
-    escape_sequence / token.punc,
-    punctuation / token.punc,
-    whitespace / token.space,
-} ^ 1) / token.para_seg * empty_pat(function() M.state = {} end)
-
-local soft_break = line_ending / token.soft_break
-M.paragraph = Ct(
-    V "ParaSeg" * (soft_break * (V "ParaSeg" - paragraph_terminate)) ^ 0
-) / token.para
 
 return M
