@@ -32,8 +32,8 @@ local function pretty_table_inline(tb)
         end
         res = res .. lead .. v_str
     end
-    if tb._t then
-        return table.concat { tb._t, res ~= "" and res or nil }
+    if tb.t then
+        return table.concat { tb.t, res ~= "" and res or nil }
     else
         return "[ " .. res .. " ]"
     end
@@ -48,9 +48,9 @@ function M.pretty_table(tb, indent)
         return pretty_table_inline(tb) .. "\n"
     else
         local res = ""
-        local is_token = not not tb._t
+        local is_token = not not tb.t
         if is_token then
-            res = tb._t .. "\n"
+            res = tb.t .. "\n"
         end
         for k, v in ipairs(tb) do
             -- stylua: ignore
@@ -65,7 +65,7 @@ function M.pretty_table(tb, indent)
             end
             res = res .. (lead .. v_str)
         end
-        if tb._t then
+        if tb.t then
             return res
         end
         return table.concat {
