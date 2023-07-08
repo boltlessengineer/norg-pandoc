@@ -57,10 +57,10 @@ local M = {
 }
 
 local function t_with_val(id)
-    return function(...) return { _t = id, ... } end
+    return function(...) return { t = id, ... } end
 end
 local function t_none_val(id)
-    return function() return { _t = id } end
+    return function() return { t = id } end
 end
 
 -- build token

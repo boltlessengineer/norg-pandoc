@@ -127,6 +127,20 @@ describe("Attached Modifiers >", function()
             }
         )
     end)
+    it("Can have only paragraph segments, not paragraphs", function()
+        local text = [[
+*bold
+
+text*
+        ]]
+        eq(
+            p:match(text),
+            t.para_seg {
+                t.punc "*",
+                t.str "bold",
+            }
+        )
+    end)
     it("Link Modifier", function()
         local text = [[
 Intra:*word*:bold

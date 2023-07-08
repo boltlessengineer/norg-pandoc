@@ -54,20 +54,21 @@
    -- (x) Footnotes
    - (x) Link Modifier
 ** ( ) Layer 4
-   - ( ) extendable links, scoping
-   - ( ) standard ranged tags (`\|comment`, etc.)
-   - (?) table cells
-         honestly, who use this?
+   - (=) extendable links, scoping
+   - (=) standard ranged tags (`\|comment`, etc.)
+   - ( ) table cells
+         very low priority
    - (x) Free-form attached modifiers
-   - ( ) ::
+   - (-) ::
          Intersecting Modifiers
 
          This would enable code like:
          @code norg
          $ Term : definition
          @end
-   - ( ) Attached Modifier Extensions
-   - ( ) inline math / variable
+   - (-) Attached Modifier Extensions
+   - (?) inline math / variable
+         what are these?
 ** ( ) Layer 5
    - ( ) *macros*
        %TODO: add todos%

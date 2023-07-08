@@ -57,14 +57,15 @@ local function attached_modifier(punc_char, verbatim)
     local non_repeat_eol = whitespace ^ 0
         * (line_ending - line_ending * paragraph_terminate)
         * whitespace ^ 0
-    local inner_capture = Ct(choice {
-        (#(punctuation - punc) * (V "Styled")),
+    local inner_capture = Ct((choice {
         V "Link",
+        V "Styled",
         wordchar ^ 1 / token.str,
-        escape_sequence + (#-modi_end * punctuation) / token.punc,
+        escape_sequence / token.punc,
+        punctuation / token.punc,
         non_repeat_eol / token.soft_break,
         whitespace / token.space,
-    } ^ 1)
+    } - modi_end) ^ 1)
     local free_inner_capture = Ct(choice {
         (wordchar + (#-free_modi_end * punctuation)) ^ 1 / token.str,
         whitespace / token.space,
@@ -225,7 +226,6 @@ M.anchor = C(link_desc)
         end
     end
 
--- TODO: inline link targets
 M.inline_link_target = P "<"
     * C(link_desc_inner ">")
     * P ">"
@@ -233,8 +233,8 @@ M.inline_link_target = P "<"
 
 -- re-check preceding whitespaces for nested blocks
 M.paragraph_segment = Ct(whitespace ^ 0 * choice {
-    V "Styled",
     V "Link",
+    V "Styled",
     wordchar ^ 1 / token.str,
     escape_sequence / token.punc,
     punctuation / token.punc,

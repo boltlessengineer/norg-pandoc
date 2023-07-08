@@ -77,8 +77,8 @@ local function nestable_modi(ch, nestable)
             if not tbl then
                 return e
             end
+            -- HACK: this can't be tested
             if tbl[1].t == "Para" then
-                -- HACK: find more smarter way
                 table.insert(tbl[1].content, 1, e[2])
                 table.insert(tbl[1].content, 1, e[1])
             end

@@ -13,6 +13,8 @@ local ext_ch = S " x?!+-=_@#<>"
 local ext_item = C(ext_ch * (whitespace * ext_wordchar) ^ 0)
 local ext =
     Ct(P "(" * ext_item * (P "|" * ext_item) ^ 0 * P ")" * whitespace ^ 1)
+
+-- TODO: this should be moved to `token.detached_ext`
 local function handle_ext(cap, str, content)
     for _, e in ipairs(cap) do
         if e == "x" then
