@@ -22,7 +22,7 @@ describe("Detached Modifiers >", function()
             eq(
                 p:match(text),
                 t.pandoc {
-                    t.heading(1, t.para_seg(), "Heading-Title"),
+                    t.heading(1, t.para_seg(), "heading-title"),
                 }
             )
         end)
@@ -34,7 +34,7 @@ I'm not heading
             eq(
                 p:match(text),
                 t.pandoc {
-                    t.heading(1, t.para_seg(), "Heading"),
+                    t.heading(1, t.para_seg(), "heading"),
                     t.para { t.para_seg() },
                 }
             )

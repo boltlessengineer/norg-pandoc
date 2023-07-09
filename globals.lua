@@ -70,7 +70,6 @@ function _G.print_cap(...)
     return ...
 end
 
--- TODO: ignore case
 function _G.make_id_from_str(str)
     local replace_space = lpeg.S " \t\r\n" ^ 1 / "-"
     local p = whitespace ^ 0
