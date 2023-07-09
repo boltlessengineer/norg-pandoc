@@ -28,7 +28,13 @@
 
 ** Parser Implementation State
 
-   You can see detailed current state in {./todo.norg}[todo.norg]
+   Currently most parts of Layer1~4 are done. The left parts are:
+
+   - (=) *Tables* : It's really hard to implement as parser
+   - (=) *Macros* (including all kinds of Tags) : Waiting for macro support in Norg
+   - (=) *Complex Links* (links to other Norg files, etc) : Waiting for standard link resolver module
+
+   You can see detailed implement state in {./todo.norg}[todo.norg]
 
 ** Contributing
 
