@@ -39,10 +39,10 @@
    - (x) Link Modifier (the `:` thing)
 ** ( ) Layer 3
    - (?) Links (*timestamps*, *wikilinks*)
-         How would this even work in other formats???
+   -- ( ) timestamps
+   -- (=) wikilinks
    - (x) Inline Link Targets
-   - (-) Carryover Tags
-         (use `pandoc.RawBlock` for this)
+   - (=) Carryover Tags
    -- ( ) week
    -- ( ) strong
    - (?) Detached Modifier Extensions
@@ -61,7 +61,7 @@
    - ( ) table cells
          very low priority
    - (x) Free-form attached modifiers
-   - (-) ::
+   - (x) ::
          Intersecting Modifiers
 
          This would enable code like:

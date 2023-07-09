@@ -14,7 +14,9 @@ local paragraph_terminate = choice {
     (whitespace ^ 0 * choice {
         P "^^",
         P "$$",
+        P "::",
     } * line_ending),
+    (whitespace ^ 0 * S "$^:" * whitespace),
     choice {
         block.week_delimiting_mod,
         block.strong_delimiting_mod,
@@ -27,13 +29,17 @@ local paragraph_terminate = choice {
 local non_repeat_eol = whitespace ^ 0
     * (line_ending - line_ending * paragraph_terminate)
     * whitespace ^ 0
+local seg_break = choice {
+    whitespace ^ 1 * P ":" * whitespace ^ 1,
+    whitespace ^ 0 * line_ending * whitespace ^ 0,
+}
 local paragraph_seg_patt = choice {
     V "Link",
     V "Styled",
     wordchar ^ 1 / token.str,
     escape_sequence / token.punc,
     punctuation / token.punc,
-    (whitespace - non_repeat_eol) ^ 1 / token.space,
+    (whitespace - seg_break) ^ 1 / token.space,
 }
 
 -- re-check preceding whitespaces for nested blocks
@@ -49,10 +55,6 @@ M.paragraph = Ct(
 )
 
 M.state = {}
-
--- TODO: make Inline parsing as Group. parse after all higher precedences are captured
--- ...but then how we handle nested attached modifiers?
--- -> we can use same aproach. that will work
 
 local function attached_modifier(punc_char, verbatim)
     local punc = P(punc_char)
@@ -93,7 +95,6 @@ local function attached_modifier(punc_char, verbatim)
         non_repeat_eol / token.soft_break,
         whitespace / token.space,
     } ^ 1)
-    -- TODO: parse as verbatim first, and capture as paragraph_segments
     local inner_capture = C(choice {
         wordchar ^ 1,
         escape_sequence ^ 1,
@@ -114,8 +115,9 @@ local function attached_modifier(punc_char, verbatim)
             non_repeat_eol,
             whitespace,
         } ^ 1)
-        inner_capture = C(choice {
-            (wordchar + escape_sequence + (punctuation - modi_end)) ^ 1,
+        inner_capture = Cs(choice {
+            escape_sequence,
+            (wordchar + (punctuation - modi_end)) ^ 1,
             non_repeat_eol,
             whitespace,
         } ^ 1)
@@ -189,10 +191,12 @@ end
 local link_desc = P "[" * link_desc_inner "]" * P "]"
 
 local function link_handler(file_loc, kind, raw_dest, desc)
+    -- print "link==="
     -- pretty_print(file_loc)
     -- pretty_print(kind)
     -- pretty_print(raw_dest)
     -- pretty_print(desc)
+    -- print "======="
     local target_str = ""
     if file_loc then
         target_str = file_loc .. ".norg"
@@ -205,6 +209,7 @@ local function link_handler(file_loc, kind, raw_dest, desc)
             local content = require("parser.block").footnotes[title]
             if content then
                 if desc then
+                    -- pretty_print(desc)
                     return token.note(content),
                         token.superscript { " ", table.unpack(desc) }
                 else
@@ -212,12 +217,13 @@ local function link_handler(file_loc, kind, raw_dest, desc)
                 end
                 -- FIX: This doesn't work. `M.state` is only valid while parsing
             elseif M.state["^"] or M.state[","] then
-                return token.str(raw_dest)
+                return token.str(desc or raw_dest)
             else
-                return token.superscript(raw_dest)
+                return token.superscript(desc or raw_dest)
             end
         else
-            desc_content = M.inline:match(raw_dest)
+            desc_content = desc
+                or flatten_table((line_ending ^ 0 * M.inline):match(raw_dest))
             target_str = target_str .. "#" .. make_id_from_str(raw_dest)
         end
     end

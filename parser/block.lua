@@ -4,9 +4,10 @@ local token = require "token"
 
 local M = {}
 
-M.week_delimiting_mod = P "-" ^ 2 * line_ending
-M.strong_delimiting_mod = P "=" ^ 2 * line_ending
-M.horizontal_rule = P "_" ^ 2 * line_ending / token.horizontal_rule
+M.week_delimiting_mod = whitespace ^ 0 * P "-" ^ 2 * line_ending
+M.strong_delimiting_mod = whitespace ^ 0 * P "=" ^ 2 * line_ending
+M.horizontal_rule = (whitespace ^ 0 * P "_" ^ 2 * line_ending)
+    / token.horizontal_rule
 
 local ext_wordchar = (wordchar + punctuation - (P ")" - P "|")) ^ 1
 local ext_ch = S " x?!+-=_@#<>"
@@ -43,7 +44,8 @@ local function handle_ext(cap, str, content)
     return str, content
 end
 
-M.heading = P(true)
+-- TODO: level fallback for HTML
+M.heading = whitespace ^ 0
     * (P "*" ^ 1 / string.len)
     * whitespace ^ 1
     * choice {
@@ -59,10 +61,14 @@ M.heading = P(true)
 
 do
     local function rangeable_single_capture(prefix_ch)
-        return P(prefix_ch)
+        return whitespace ^ 0
+            * P(prefix_ch)
             * whitespace ^ 1
             * C(V "ParaSeg")
-            * (line_ending * whitespace ^ 0) ^ 1
+            * choice {
+                whitespace ^ 1 * P ":" * whitespace ^ 1,
+                (whitespace ^ 0 * line_ending * whitespace ^ 0) ^ 1,
+            }
             * V "Para"
             * line_ending
     end
@@ -72,20 +78,30 @@ do
         return modifier
             * whitespace ^ 1
             * C(V "ParaSeg")
+            * choice {
+                whitespace ^ 1 * P ":" * whitespace ^ 1,
+                (whitespace ^ 0 * line_ending * whitespace ^ 0) ^ 1,
+            }
             * Ct(choice {
                 (whitespace + line_ending),
                 (V "Block" - modifier),
-            } ^ 0)
+            } ^ 1)
             * whitespace ^ 0
             * modifier
             * whitespace ^ 0
             * line_ending
     end
 
-    M.definition_list = Ct(Ct(choice {
-        rangeable_single_capture "$",
-        rangeable_ranged_capture "$",
-    } * (whitespace + line_ending) ^ 0) ^ 1) / function(defs)
+    M.definition_list = Ct(seq {
+        Ct(choice {
+            rangeable_single_capture "$",
+            rangeable_ranged_capture "$",
+        }),
+        ((whitespace + line_ending) ^ 0 * Ct(choice {
+            rangeable_single_capture "$",
+            rangeable_ranged_capture "$",
+        })) ^ 0,
+    }) / function(defs)
         local list = {}
         for i, item in ipairs(defs) do
             local raw, txt, def = table.unpack(item)
@@ -108,6 +124,11 @@ do
             return true
         end
     )
+
+    M.table_cells = choice {
+        rangeable_single_capture ":",
+        rangeable_ranged_capture ":",
+    } / function(raw, _txt, def) return pandoc.Para "not implemented yet" end
 end
 
 M.detached_modifier = choice {

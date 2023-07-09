@@ -215,5 +215,15 @@ o/file:}
             }
         )
     end)
-    -- TODO: {google.com}[this is *bold ]*]
+    it("Modifier with description", function()
+        local text = "{* heading}[my heading]"
+        eq(
+            p:match(text),
+            t.para_seg {
+                t.link({
+                    t.para_seg { t.str "my", t.space(), t.str "heading" },
+                }, "#heading"),
+            }
+        )
+    end)
 end)

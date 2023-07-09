@@ -58,14 +58,16 @@ local function nestable_modi(ch, nestable)
                 P ":" * line_ending,
                 whitespace ^ 0,
                 (V "Block" - lower_item_start) ^ 1,
-                empty_pat(
-                    function(str, pos) pretty_print(str:sub(pos, pos + 2)) end
-                ),
             }),
             Ct(seq {
                 P "::" * line_ending,
                 whitespace ^ 0,
-                (V "Block" * line_ending ^ 0 - lower_item_start) ^ 1,
+                -- TODO: lower the level using delimiting mod
+                (
+                    V "Block" * line_ending ^ 0
+                    - V "delimiting_mod"
+                    - lower_item_start
+                ) ^ 1,
             }),
             Ct(seq {
                 V "Para",
@@ -87,19 +89,18 @@ local function nestable_modi(ch, nestable)
     return Ct(seq {
         seq {
             whitespace ^ 0,
-            Cmt(P(ch) ^ 1 / string.len, function(_, _, count)
+            Cmt(P(ch) ^ 1 / string.len * whitespace ^ 1, function(_, _, count)
                 if count > lev:last() then
                     lev:push(count)
                     return true
                 end
                 return false
             end),
-            whitespace ^ 1,
             list_item,
         },
         seq {
             whitespace ^ 0,
-            Cmt(P(ch) ^ 1 / string.len, function(_, _, count)
+            Cmt(P(ch) ^ 1 / string.len * whitespace ^ 1, function(_, _, count)
                 if count > lev:last() then
                     lev:push(count)
                     return true
@@ -108,7 +109,6 @@ local function nestable_modi(ch, nestable)
                 end
                 return false
             end),
-            whitespace ^ 1,
             list_item,
         } ^ 0,
     }) * empty_pat(function() lev:pop() end)

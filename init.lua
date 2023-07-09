@@ -31,12 +31,14 @@ _G.grammar = {
         -- range-able
         V "definition",
         V "footnote",
+        V "table_cells",
     },
     ParaSeg = paragraph.inline_segment,
     Para = paragraph.inline / token.para,
     verbatim_ranged_tag = block.verbatim_ranged_tag,
     definition = block.definition_list,
     footnote = block.footnote,
+    table_cells = block.table_cells,
     delimiting_mod = choice {
         block.week_delimiting_mod,
         block.strong_delimiting_mod,

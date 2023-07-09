@@ -32,6 +32,7 @@ local M = {
     subscript = flatten "Subscript",
     inline_code = "Code",
     null_modifier = function() return nil end,
+    -- TODO: excape punctuations in free-form markup (ex: `10$`)
     inline_math = function(text) return pandoc.Math("InlineMath", text) end,
     variable = function(inline)
         return pandoc.Span(inline, { class = "variable" })
