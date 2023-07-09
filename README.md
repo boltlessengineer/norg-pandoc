@@ -34,14 +34,4 @@ provide full pandoc support as soon as possible.
 
 ## Parser Implementation State
 
-You can see detailed current state in [todo.norg](./todo.norg)
-
-## Contributing
-
-All contributions are welcome!
-
-You can test with [busted](https://github.com/lunarmodules/busted) or
-[neotest-plenary](https://github.com/nvim-neotest/neotest-plenary)
-before making a PR.
-
-All test files should be named like: `test/*_spec.lua`.
+Currently most parts of Layer1~4 are done. The left parts are:
