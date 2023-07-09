@@ -36,7 +36,6 @@
    -- (x) to Custom Detached Modifiers
    --- (x) magic (`#`)
    --- (x) file (`/`)
-   - (x) Link Modifier (the `:` thing)
 ** ( ) Layer 3
    - (?) Links (*timestamps*, *wikilinks*)
    -- ( ) timestamps
@@ -54,10 +53,12 @@
    - (x) Range-able Detached Modifiers (minus *table cells*)
    -- (x) Definition
    -- (x) Footnotes
-   - (x) Link Modifier
+   - (x) Link Modifier (the `:` thing)
 ** ( ) Layer 4
    - (=) extendable links, scoping
-   - (-) standard ranged tags (`\|comment`, etc.)
+   - (?) ::
+         standard ranged tags (`\|comment`, etc.)
+         this should be implemented as macros
    -- (x) `\|example`
    -- (x) `\|comment`
    -- ( ) `\|details`

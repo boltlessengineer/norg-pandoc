@@ -7,6 +7,15 @@ _G.inspect = require "src.inspect"
 
 function _G.pretty_print(...) print(inspect(...)) end
 
+function _G.list_contains(t, value)
+    for _, v in ipairs(t) do
+        if v == value then
+            return true
+        end
+    end
+    return false
+end
+
 function _G.flatten_table(tbl)
     local res = {}
     for _, val in ipairs(tbl) do
@@ -65,7 +74,11 @@ end
 function _G.make_id_from_str(str)
     local replace_space = lpeg.S " \t\r\n" ^ 1 / "-"
     local p = whitespace ^ 0
-        * Cs((punctuation / "" + replace_space + lpeg.P(1)) ^ 1)
+        * Cs(choice {
+            punctuation / "",
+            replace_space,
+            lpeg.P(1) / string.lower,
+        } ^ 1)
         * whitespace ^ 0
     return p:match(str)
 end

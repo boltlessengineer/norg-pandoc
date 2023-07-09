@@ -14,20 +14,17 @@ local ext_cap = Cnil(ext ^ -1)
         if not cap then
             return
         end
+        local todo_done = false
         for _, e in ipairs(cap) do
-            -- how this works: https://github.com/jgm/pandoc/pull/5139
             if e == "x" then
-                return {
-                    pandoc.Str "☒",
-                    pandoc.Space(),
-                }
-            else
-                return {
-                    pandoc.Str "☐",
-                    pandoc.Space(),
-                }
+                todo_done = true
             end
         end
+        return {
+            -- how this works: https://github.com/jgm/pandoc/pull/5139
+            pandoc.Str(todo_done and "☒" or "☐"),
+            pandoc.Space(),
+        }
     end
 
 local nest_lev = {}

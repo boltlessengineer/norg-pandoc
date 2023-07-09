@@ -99,10 +99,10 @@ local function attached_modifier(punc_char, verbatim)
     local inner_capture = C(choice {
         wordchar ^ 1,
         escape_sequence ^ 1,
-        V "Styled",
+        V "Styled" - modi_start,
         V "Link",
         (punctuation - modi_end) ^ 1,
-        line_ending * whitespace ^ 0 * #-line_ending,
+        line_ending * -#paragraph_terminate,
         whitespace ^ 1,
     } ^ 1) / function(cap)
         M.state[punc_char] = true
