@@ -23,6 +23,7 @@ local paragraph_terminate = choice {
         block.horizontal_rule,
     },
     block.verbatim_ranged_tag,
+    (whitespace ^ 0 * P "|" * wordchar ^ 1),
     -- V "strong_carryover_tag"
 }
 
@@ -52,7 +53,7 @@ M.paragraph = Ct(
     V "_ParaSeg"
         * whitespace ^ 0
         * (soft_break * (V "_ParaSeg" - paragraph_terminate)) ^ 0
-)
+) - whitespace ^ 0 * P "|end"
 
 M.state = {}
 

@@ -44,7 +44,6 @@ local function handle_ext(cap, str, content)
     return str, content
 end
 
--- TODO: level fallback for HTML
 M.heading = whitespace ^ 0
     * (P "*" ^ 1 / string.len)
     * whitespace ^ 1
@@ -92,43 +91,50 @@ do
             * line_ending
     end
 
-    M.definition_list = Ct(seq {
-        Ct(choice {
-            rangeable_single_capture "$",
-            rangeable_ranged_capture "$",
-        }),
-        ((whitespace + line_ending) ^ 0 * Ct(choice {
-            rangeable_single_capture "$",
-            rangeable_ranged_capture "$",
-        })) ^ 0,
-    }) / function(defs)
-        local list = {}
-        for i, item in ipairs(defs) do
-            local raw, txt, def = table.unpack(item)
-            local title = make_id_from_str(raw)
-            list[i] = { token.definition_text(txt, { id = title }), def }
+    M.definition_list = whitespace ^ 0
+        * Ct(seq {
+            Ct(choice {
+                rangeable_single_capture "$",
+                rangeable_ranged_capture "$",
+            }),
+            ((whitespace + line_ending) ^ 0 * Ct(choice {
+                rangeable_single_capture "$",
+                rangeable_ranged_capture "$",
+            })) ^ 0,
+        })
+        / function(defs)
+            local list = {}
+            for i, item in ipairs(defs) do
+                local raw, txt, def = table.unpack(item)
+                local title = make_id_from_str(raw)
+                list[i] = { token.definition_text(txt, { id = title }), def }
+            end
+            return token.definition_list(list)
         end
-        return token.definition_list(list)
-    end
 
     M.footnotes = {}
 
-    M.footnote = Cmt(
-        choice {
-            rangeable_single_capture "^",
-            rangeable_ranged_capture "^",
-        },
-        function(_, _, raw, _txt, def)
-            local title = make_id_from_str(raw)
-            M.footnotes[title] = def
-            return true
-        end
-    )
+    M.footnote = whitespace ^ 0
+        * Cmt(
+            choice {
+                rangeable_single_capture "^",
+                rangeable_ranged_capture "^",
+            },
+            function(_, _, raw, _txt, def)
+                local title = make_id_from_str(raw)
+                M.footnotes[title] = def
+                return true
+            end
+        )
 
-    M.table_cells = choice {
-        rangeable_single_capture ":",
-        rangeable_ranged_capture ":",
-    } / function(raw, _txt, def) return pandoc.Para "not implemented yet" end
+    M.table_cells = whitespace ^ 0
+        * choice {
+            rangeable_single_capture ":",
+            rangeable_ranged_capture ":",
+            -- HACK: implement this someday
+            P "::" * line_ending,
+        }
+        / function(_raw, _txt, _def) return pandoc.Para "not implemented yet" end
 end
 
 M.detached_modifier = choice {
@@ -153,7 +159,7 @@ end
 do
     local _end = make_end(verbatim_ranged_tag_prefix)
     local _start = verbatim_ranged_tag_prefix
-        * C((wordchar + punctuation) ^ 1)
+        * C((wordchar + punctuation) ^ 1 - P "end")
         * Ct((whitespace ^ 1 * C((wordchar + punctuation) ^ 1)) ^ 0)
         * line_ending
     M.verbatim_ranged_tag = C(whitespace ^ 0 / string.len)
@@ -165,6 +171,45 @@ do
                 -- TODO: remove this line and return parsed document
                 table.insert(param, 1, name)
             elseif name ~= "code" then
+                table.insert(param, 1, name)
+            end
+            local class = table.concat(param, " ")
+            if indent > 0 then
+                local repl = (P(ws_ch) / "")
+                content = lpeg.match(
+                    Cs(repl * (line_ending * repl + 1) ^ 0),
+                    content
+                ) or content
+            end
+            return token.code_block(content, { class = class })
+        end
+end
+
+do
+    local _end = make_end(standard_ranged_tag_prefix)
+    local _start = standard_ranged_tag_prefix
+        * C((wordchar + punctuation) ^ 1 - P "end")
+        * Ct((whitespace ^ 1 * C((wordchar + punctuation) ^ 1)) ^ 0)
+        * line_ending
+    M.standard_ranged_tag = C(whitespace ^ 0 / string.len)
+        * _start
+        * C(Ct(choice {
+            V "standard_ranged_tag",
+            V "verbatim_ranged_tag",
+            V "detached_modifier",
+            V "delimiting_mod",
+            V "Para" * line_ending,
+            (whitespace ^ 0 * line_ending),
+        } ^ 0))
+        * _end
+        / function(ws_ch, indent, name, param, content, parsed)
+            if name == "comment" then
+                return
+            elseif name == "example" then
+                table.insert(param, 1, "norg")
+            elseif name == "group" then
+                return token.div(parsed)
+            else
                 table.insert(param, 1, name)
             end
             local class = table.concat(param, " ")

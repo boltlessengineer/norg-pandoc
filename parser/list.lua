@@ -54,11 +54,12 @@ local function nestable_modi(ch, nestable)
     local list_item = P(true)
         * ext_cap
         * choice {
+            -- slide
             Ct(seq {
                 P ":" * line_ending,
-                whitespace ^ 0,
                 (V "Block" - lower_item_start) ^ 1,
             }),
+            -- indent segment
             Ct(seq {
                 P "::" * line_ending,
                 whitespace ^ 0,

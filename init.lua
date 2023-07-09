@@ -12,8 +12,9 @@ _G.grammar = {
         (whitespace + line_ending),
     } ^ 0) / token.pandoc,
     Block = choice {
-        V "detached_modifier",
+        V "standard_ranged_tag",
         V "verbatim_ranged_tag",
+        V "detached_modifier",
         V "delimiting_mod",
         V "Para" * line_ending,
     },
@@ -36,6 +37,7 @@ _G.grammar = {
     ParaSeg = paragraph.inline_segment,
     Para = paragraph.inline / token.para,
     verbatim_ranged_tag = block.verbatim_ranged_tag,
+    standard_ranged_tag = block.standard_ranged_tag,
     definition = block.definition_list,
     footnote = block.footnote,
     table_cells = block.table_cells,

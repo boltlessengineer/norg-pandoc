@@ -57,7 +57,11 @@
    - (x) Link Modifier
 ** ( ) Layer 4
    - (=) extendable links, scoping
-   - (=) standard ranged tags (`\|comment`, etc.)
+   - (-) standard ranged tags (`\|comment`, etc.)
+   -- (x) `\|example`
+   -- (x) `\|comment`
+   -- ( ) `\|details`
+   -- (x) `\|group`
    - ( ) table cells
          very low priority
    - (x) Free-form attached modifiers

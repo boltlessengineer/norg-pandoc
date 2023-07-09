@@ -48,6 +48,7 @@ local M = {
     definition_text = "Span",
     definition_list = "DefinitionList",
     note = "Note",
+    div = "Div",
 }
 
 local function t_with_val(id)
